@@ -7,15 +7,15 @@
         "participants": [
             {
                 "id": "teacher-001",
-                "name": "王老師",
+                "name": "老師",
                 "avatar": "",
                 "role": "teacher",
                 "status": "active",
                 "isAI": false
             },
             {
-                "id": "agent-tutor",
-                "name": "小助教 (AI)",
+                "id": "ai-assistant",
+                "name": "AI 助教",
                 "avatar": "",
                 "role": "assistant",
                 "status": "active",
@@ -23,31 +23,31 @@
             },
             {
                 "id": "user-001",
-                "name": "王小明",
+                "name": "學生",
                 "avatar": "",
                 "role": "student",
                 "status": "idle",
                 "isAI": false
             },
             {
-                "id": "agent-alice",
-                "name": "愛麗絲 (AI)",
+                "id": "ai-peer-a",
+                "name": "AI 同儕 A",
                 "avatar": "",
                 "role": "student",
                 "status": "thinking",
                 "isAI": true
             },
             {
-                "id": "agent-bob",
-                "name": "波波 (AI)",
+                "id": "ai-peer-b",
+                "name": "AI 同儕 B",
                 "avatar": "",
                 "role": "student",
                 "status": "idle",
                 "isAI": true
             },
             {
-                "id": "agent-charlie",
-                "name": "查理 (AI)",
+                "id": "ai-peer-c",
+                "name": "AI 同儕 C",
                 "avatar": "",
                 "role": "student",
                 "status": "idle",
@@ -63,25 +63,25 @@
             },
             {
                 "id": "msg-002",
-                "senderId": "agent-bob",
+                "senderId": "ai-peer-b",
                 "content": "呃...老師，價格不都是貼在上面嗎？我不知道耶...",
                 "timestamp": "2026-01-14T08:01:00Z"
             },
             {
                 "id": "msg-003",
-                "senderId": "agent-alice",
+                "senderId": "ai-peer-a",
                 "content": "我知道！像是寄杯咖啡的活動，有時候買多杯會有折扣，但如果單買一杯的價格跟組合價不一樣，這時候如果只知道總價，單杯價格就像是那個未知數！",
                 "timestamp": "2026-01-14T08:01:30Z"
             },
             {
                 "id": "msg-004",
-                "senderId": "agent-tutor",
+                "senderId": "ai-assistant",
                 "content": "愛麗絲舉的例子很棒！波波，想像一下，如果你買了 3 瓶一樣的飲料加上一個 10 元的袋子，總共花了 100 元。那我們要怎麼算出飲料一瓶多少錢呢？這就是方程式要解決的問題。",
                 "timestamp": "2026-01-14T08:02:15Z"
             },
             {
                 "id": "msg-005",
-                "senderId": "agent-charlie",
+                "senderId": "ai-peer-c",
                 "content": "那如果飲料是來自外太空的能量水，喝了會變超人，它的價格會不會是負的？因為我要倒貼才能獲得超能力？",
                 "timestamp": "2026-01-14T08:03:00Z"
             },
@@ -93,7 +93,7 @@
             },
             {
                 "id": "msg-007",
-                "senderId": "agent-bob",
+                "senderId": "ai-peer-b",
                 "content": "喔！所以我先把袋子 10 元扣掉...剩下 90 元是飲料的錢？但我數學不好，90 除以 3 是多少啊？",
                 "timestamp": "2026-01-14T08:04:30Z"
             },
@@ -105,7 +105,7 @@
             },
             {
                 "id": "msg-009",
-                "senderId": "agent-tutor",
+                "senderId": "ai-assistant",
                 "content": "沒錯！王小明解釋得很清楚。而且還用了分錢的例子，很棒！\n\n這個動作「扣掉 10 元」在數學上叫做**移項**，「除以 3」叫做**係數處理**。\n\n讓我用圖表總結一下：",
                 "timestamp": "2026-01-14T08:05:45Z",
                 "toolCall": {
@@ -124,7 +124,7 @@
             },
             {
                 "id": "msg-010",
-                "senderId": "agent-alice",
+                "senderId": "ai-peer-a",
                 "content": "@王小明 說得真好！不過這題太簡單了，老師，接下來會教二元一次嗎？我想挑戰難一點的。",
                 "timestamp": "2026-01-14T08:06:30Z"
             }
@@ -165,8 +165,8 @@
     },
     "agents": [
         {
-            "id": "agent-tutor",
-            "name": "小助教",
+            "id": "ai-assistant",
+            "name": "AI 助教",
             "description": "友善的教學助理，負責協助老師管理課堂秩序，並在學生遇到困難時提供引導。",
             "avatar": "/avatars/tutor-ai.png",
             "baseModel": "gpt-4o",
@@ -185,12 +185,12 @@
             "updatedAt": "2026-01-14T08:00:00Z"
         },
         {
-            "id": "agent-alice",
-            "name": "愛麗絲",
+            "id": "ai-peer-a",
+            "name": "AI 同儕 A",
             "description": "資優生 AI，反應快，喜歡補充額外知識，有時會顯得有點愛現。",
             "avatar": "/avatars/alice-ai.png",
             "baseModel": "claude-3-5-sonnet",
-            "systemPrompt": "妳是愛麗絲，一位熱愛數學的國中生。妳很聰明，總是第一個回答問題，並且喜歡用更高級的概念來補充老師的說法。語氣自信、積極。",
+            "systemPrompt": "妳是一位熱愛數學的國中生。妳很聰明，總是第一個回答問題，並且喜歡用更高級的概念來補充老師的說法。語氣自信、積極。",
             "knowledgeLevel": 8,
             "temperature": 0.7,
             "communicationStyle": "professional",
@@ -205,12 +205,12 @@
             "updatedAt": "2026-01-14T08:00:00Z"
         },
         {
-            "id": "agent-bob",
-            "name": "波波",
+            "id": "ai-peer-b",
+            "name": "AI 同儕 B",
             "description": "學習緩慢的 AI，容易分心，經常問一些基礎或重複的問題。",
             "avatar": "/avatars/bob-ai.png",
             "baseModel": "gpt-3.5-turbo",
-            "systemPrompt": "你是波波，一位對數學感到困擾的學生。你常常跟不上進度，會問一些簡單的問題，或是說你聽不懂。語氣帶點困惑、缺乏自信。",
+            "systemPrompt": "你是一位對數學感到困擾的學生。你常常跟不上進度，會問一些簡單的問題，或是說你聽不懂。語氣帶點困惑、缺乏自信。",
             "knowledgeLevel": 3,
             "temperature": 0.8,
             "communicationStyle": "casual",
@@ -223,12 +223,12 @@
             "updatedAt": "2026-01-14T08:00:00Z"
         },
         {
-            "id": "agent-charlie",
-            "name": "查理",
+            "id": "ai-peer-c",
+            "name": "AI 同儕 C",
             "description": "跳躍思考的 AI，創意豐富，常會問出意想不到的問題。",
             "avatar": "/avatars/charlie-ai.png",
             "baseModel": "gpt-4o",
-            "systemPrompt": "你是查理，一位思考跳躍的學生。你喜歡聯想，可能會問一些跟目前主題有關但很發散的問題。例如講到方程式，你會問能不能用來算宇宙飛船軌道。",
+            "systemPrompt": "你是一位思考跳躍的學生。你喜歡聯想，可能會問一些跟目前主題有關但很發散的問題。例如講到方程式，你會問能不能用來算宇宙飛船軌道。",
             "knowledgeLevel": 6,
             "temperature": 0.9,
             "communicationStyle": "socratic",

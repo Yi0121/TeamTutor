@@ -45,7 +45,7 @@ const initialNodes: Node[] = [
         id: 'agent-1',
         type: 'agent',
         position: { x: 100, y: 200 },
-        data: { label: '小助教', agentId: 'agent-tutor', model: 'gpt-4o' },
+        data: { label: 'AI 助教', agentId: 'ai-assistant', model: 'gpt-4o' },
     },
     {
         id: 'agent-2',
