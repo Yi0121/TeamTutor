@@ -10,6 +10,10 @@ import {
     Database,
     Sparkles,
     TestTube,
+    Plus,
+    Trash2,
+    FileText,
+    BookmarkPlus,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +29,19 @@ const models = mockData.llmModels as LLMModel[];
 const knowledgeBases = mockData.knowledgeBases as KnowledgeBase[];
 const communicationStyles = mockData.communicationStyles as CommunicationStyleOption[];
 
+// Mock Prompt Templates
+const promptTemplates = [
+    { id: 'tpl-001', name: '友善導師', prompt: '你是一位友善的教學導師，用鼓勵的語氣引導學生學習。' },
+    { id: 'tpl-002', name: '嚴格教練', prompt: '你是一位嚴格的教練，要求學生精確回答，對錯誤即時糾正。' },
+    { id: 'tpl-003', name: '蘇格拉底式', prompt: '你運用蘇格拉底式提問法，不直接給答案，透過問題引導學生思考。' },
+    { id: 'tpl-004', name: '同儕夥伴', prompt: '你是學生的同儕，用輕鬆聊天的方式討論問題，可以分享自己的（模擬的）困惑。' },
+];
+
+interface SuggestedQuestion {
+    displayText: string;
+    actualPrompt: string;
+}
+
 export default function AgentEditPage() {
     const params = useParams();
     const router = useRouter();
@@ -34,6 +51,14 @@ export default function AgentEditPage() {
 
     const [agent, setAgent] = useState<AgentConfig | null>(originalAgent || null);
     const [isTesting, setIsTesting] = useState(false);
+    const [showTemplateModal, setShowTemplateModal] = useState(false);
+    const [showSaveAsTemplateModal, setShowSaveAsTemplateModal] = useState(false);
+    const [newTemplateName, setNewTemplateName] = useState('');
+
+    // Initialize suggested questions from agent data (or empty array)
+    const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>(
+        (originalAgent?.suggestedQuestions || []).map(q => ({ displayText: q, actualPrompt: q }))
+    );
 
     if (!agent) {
         return (
@@ -45,9 +70,38 @@ export default function AgentEditPage() {
 
     const handleSave = () => {
         // TODO: Save to backend
-        console.log('Saving agent:', agent);
+        console.log('Saving agent:', agent, 'Questions:', suggestedQuestions);
         alert('代理人設定已儲存（Mock）');
     };
+
+    const handleInsertTemplate = (prompt: string) => {
+        setAgent({ ...agent, systemPrompt: prompt });
+        setShowTemplateModal(false);
+    };
+
+    const handleSaveAsTemplate = () => {
+        if (!newTemplateName.trim()) return;
+        // Mock save
+        console.log('Saving as template:', { name: newTemplateName, prompt: agent.systemPrompt });
+        alert(`已另存為模板「${newTemplateName}」（Mock）`);
+        setShowSaveAsTemplateModal(false);
+        setNewTemplateName('');
+    };
+
+    const addSuggestedQuestion = () => {
+        setSuggestedQuestions([...suggestedQuestions, { displayText: '', actualPrompt: '' }]);
+    };
+
+    const removeSuggestedQuestion = (index: number) => {
+        setSuggestedQuestions(suggestedQuestions.filter((_, i) => i !== index));
+    };
+
+    const updateSuggestedQuestion = (index: number, field: keyof SuggestedQuestion, value: string) => {
+        const updated = [...suggestedQuestions];
+        updated[index] = { ...updated[index], [field]: value };
+        setSuggestedQuestions(updated);
+    };
+
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -72,6 +126,10 @@ export default function AgentEditPage() {
                             <Button variant="outline" onClick={() => setIsTesting(true)}>
                                 <TestTube className="w-4 h-4 mr-2" />
                                 預覽測試
+                            </Button>
+                            <Button variant="outline" onClick={() => setShowSaveAsTemplateModal(true)}>
+                                <BookmarkPlus className="w-4 h-4 mr-2" />
+                                另存為模板
                             </Button>
                             <Button onClick={handleSave}>
                                 <Save className="w-4 h-4 mr-2" />
@@ -233,10 +291,16 @@ export default function AgentEditPage() {
 
                 {/* System Prompt Section */}
                 <section className="bg-white rounded-xl border border-slate-200 p-6">
-                    <h2 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
-                        <MessageSquare className="w-5 h-5 text-green-600" />
-                        System Prompt
-                    </h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                            <MessageSquare className="w-5 h-5 text-green-600" />
+                            System Prompt
+                        </h2>
+                        <Button variant="outline" size="sm" onClick={() => setShowTemplateModal(true)}>
+                            <FileText className="w-4 h-4 mr-2" />
+                            套用模板
+                        </Button>
+                    </div>
 
                     <Textarea
                         value={agent.systemPrompt}
@@ -294,6 +358,70 @@ export default function AgentEditPage() {
                         ))}
                     </div>
                 </section>
+
+                {/* Suggested Questions Section */}
+                <section className="bg-white rounded-xl border border-slate-200 p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                            <MessageSquare className="w-5 h-5 text-blue-600" />
+                            建議問題
+                        </h2>
+                        <Button variant="outline" size="sm" onClick={addSuggestedQuestion}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            新增問題
+                        </Button>
+                    </div>
+
+                    <p className="text-sm text-slate-500 mb-4">
+                        設定預設的建議問題，讓學生快速開始互動。可設定顯示文字與實際發送的 Prompt。
+                    </p>
+
+                    {suggestedQuestions.length === 0 ? (
+                        <div className="text-center py-8 text-slate-400 border-2 border-dashed border-slate-200 rounded-lg">
+                            尚無建議問題，點擊「新增問題」開始設定
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {suggestedQuestions.map((q, index) => (
+                                <div key={index} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex-1 space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-500 mb-1">
+                                                    顯示文字
+                                                </label>
+                                                <Input
+                                                    value={q.displayText}
+                                                    onChange={(e) => updateSuggestedQuestion(index, 'displayText', e.target.value)}
+                                                    placeholder="例如：什麼是方程式？"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-500 mb-1">
+                                                    實際 Prompt
+                                                </label>
+                                                <Textarea
+                                                    value={q.actualPrompt}
+                                                    onChange={(e) => updateSuggestedQuestion(index, 'actualPrompt', e.target.value)}
+                                                    placeholder="例如：請用簡單的例子解釋什麼是方程式..."
+                                                    rows={2}
+                                                />
+                                            </div>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            onClick={() => removeSuggestedQuestion(index)}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
             </main>
 
             {/* Test Dialog (Simple Mock) */}
@@ -313,6 +441,72 @@ export default function AgentEditPage() {
                         >
                             關閉
                         </Button>
+                    </div>
+                </div>
+            )}
+
+            {/* Template Selection Modal */}
+            {showTemplateModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl w-full max-w-md mx-4 p-6">
+                        <h3 className="text-lg font-semibold mb-4">選擇 Prompt 模板</h3>
+                        <div className="space-y-3 max-h-80 overflow-y-auto mb-4">
+                            {promptTemplates.map((tpl) => (
+                                <button
+                                    key={tpl.id}
+                                    onClick={() => handleInsertTemplate(tpl.prompt)}
+                                    className="w-full text-left p-4 border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                                >
+                                    <div className="font-medium text-slate-900">{tpl.name}</div>
+                                    <div className="text-sm text-slate-500 mt-1 line-clamp-2">{tpl.prompt}</div>
+                                </button>
+                            ))}
+                        </div>
+                        <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => setShowTemplateModal(false)}
+                        >
+                            取消
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {/* Save as Template Modal */}
+            {showSaveAsTemplateModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl w-full max-w-md mx-4 p-6">
+                        <h3 className="text-lg font-semibold mb-4">另存為模板</h3>
+                        <p className="text-sm text-slate-500 mb-4">
+                            將目前的 System Prompt 儲存為可重複使用的模板。
+                        </p>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                                模板名稱
+                            </label>
+                            <Input
+                                value={newTemplateName}
+                                onChange={(e) => setNewTemplateName(e.target.value)}
+                                placeholder="例如：數學助教 Prompt"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => setShowSaveAsTemplateModal(false)}
+                            >
+                                取消
+                            </Button>
+                            <Button
+                                className="flex-1"
+                                onClick={handleSaveAsTemplate}
+                                disabled={!newTemplateName.trim()}
+                            >
+                                儲存模板
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}
