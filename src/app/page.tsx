@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bot, Workflow, BarChart3, MessageSquare, Wrench, Database } from 'lucide-react';
+import { Bot, Workflow, BarChart3, MessageSquare, Wrench, Database, Shield } from 'lucide-react';
 
 const pages = [
   {
@@ -43,6 +43,13 @@ const pages = [
     title: 'RAG 知識庫',
     description: '向量資料庫管理',
     color: 'bg-cyan-500',
+  },
+  {
+    href: '/admin',
+    icon: Shield,
+    title: '系統管理',
+    description: '權限與系統監控',
+    color: 'bg-slate-600',
   },
 ];
 

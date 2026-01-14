@@ -544,5 +544,65 @@
                 }
             ]
         }
-    ]
+    ],
+    "users": [
+        {
+            "id": "user-001",
+            "name": "王小明",
+            "email": "wang@example.com",
+            "role": "student",
+            "status": "active",
+            "lastLogin": "2026-01-14T08:00:00Z",
+            "usage": {
+                "tokens": 15000,
+                "sessions": 12
+            }
+        },
+        {
+            "id": "user-002",
+            "name": "李大同",
+            "email": "lee@example.com",
+            "role": "teacher",
+            "status": "active",
+            "lastLogin": "2026-01-13T10:00:00Z",
+            "usage": {
+                "tokens": 45000,
+                "sessions": 25
+            }
+        },
+        {
+            "id": "user-003",
+            "name": "陳小美",
+            "email": "chen@example.com",
+            "role": "admin",
+            "status": "active",
+            "lastLogin": "2026-01-14T09:30:00Z",
+            "usage": {
+                "tokens": 5000,
+                "sessions": 5
+            }
+        },
+        {
+            "id": "user-004",
+            "name": "張志強",
+            "email": "chang@example.com",
+            "role": "student",
+            "status": "inactive",
+            "lastLogin": "2025-12-20T14:00:00Z",
+            "usage": {
+                "tokens": 2000,
+                "sessions": 3
+            }
+        }
+    ],
+    "systemStats": {
+        "totalUsers": 128,
+        "activeUsers": 45,
+        "totalSessions": 1250,
+        "totalTokens": 8500000,
+        "serverStatus": "healthy",
+        "vectorDbStatus": "healthy",
+        "errorRate": 0.02,
+        "apiLatency": 350
+    }
 }
