@@ -8,16 +8,24 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ToolCallCard } from './ToolCallCard';
-import type { Message, Participant } from '@/types';
+// We import Message from types but might need to export it for consumers who import from here
+// Or we just define a local interface that extends the base one
+import type { Message as BaseMessage, Participant } from '@/types';
 import 'katex/dist/katex.min.css';
 
-interface MessageBubbleProps {
-    message: Message;
+export interface Message extends BaseMessage { }
+
+export interface MessageBubbleProps {
+    message: BaseMessage;
     sender?: Participant;
+    isOwn?: boolean; // Direct override for ownership
+    mode?: 'live' | 'history';
+    onAnnotate?: () => void;
 }
 
-export function MessageBubble({ message, sender }: MessageBubbleProps) {
-    const isUser = sender && !sender.isAI;
+export default function MessageBubble({ message, sender, isOwn, mode = 'live', onAnnotate }: MessageBubbleProps) {
+    // Determine ownership: if isOwn provided, use it, otherwise fallback to sender check
+    const isUser = isOwn !== undefined ? isOwn : (sender && !sender.isAI);
     const [timestamp, setTimestamp] = React.useState('');
 
     React.useEffect(() => {

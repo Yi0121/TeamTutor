@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { MessageBubble } from './MessageBubble';
+import MessageBubble from './MessageBubble';
 import type { Message, Participant } from '@/types';
 
 interface MessageListProps {

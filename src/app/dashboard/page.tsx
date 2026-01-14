@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import GridLayout, { Layout } from 'react-grid-layout';
+import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import {
@@ -60,7 +60,7 @@ const abilityData = [
 ];
 
 // Default layout for widgets
-const defaultLayout: Layout[] = [
+const defaultLayout = [
     { i: 'stat-1', x: 0, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
     { i: 'stat-2', x: 3, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
     { i: 'stat-3', x: 6, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
@@ -73,7 +73,7 @@ const defaultLayout: Layout[] = [
 export default function DashboardPage() {
     const [selectedRange, setSelectedRange] = useState('7d');
     const [isExporting, setIsExporting] = useState(false);
-    const [layout, setLayout] = useState<Layout[]>(defaultLayout);
+    const [layout, setLayout] = useState(defaultLayout);
 
     const handleExport = () => {
         setIsExporting(true);
@@ -95,7 +95,7 @@ export default function DashboardPage() {
         }, 500);
     };
 
-    const onLayoutChange = useCallback((newLayout: Layout[]) => {
+    const onLayoutChange = useCallback((newLayout: any) => {
         setLayout(newLayout);
         // TODO: Persist layout to localStorage or backend
         localStorage.setItem('dashboard-layout', JSON.stringify(newLayout));
@@ -105,6 +105,8 @@ export default function DashboardPage() {
         setLayout(defaultLayout);
         localStorage.removeItem('dashboard-layout');
     };
+
+    const Grid = GridLayout as unknown as React.ComponentType<any>;
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -124,8 +126,8 @@ export default function DashboardPage() {
                                         key={range.id}
                                         onClick={() => setSelectedRange(range.id)}
                                         className={`px-3 py-1.5 text-sm rounded-md transition-colors ${selectedRange === range.id
-                                                ? 'bg-white text-slate-900 shadow-sm'
-                                                : 'text-slate-600 hover:text-slate-900'
+                                            ? 'bg-white text-slate-900 shadow-sm'
+                                            : 'text-slate-600 hover:text-slate-900'
                                             }`}
                                     >
                                         {range.label}
@@ -153,7 +155,7 @@ export default function DashboardPage() {
             </header>
 
             <main className="max-w-[1600px] mx-auto px-6 py-8">
-                <GridLayout
+                <Grid
                     className="layout"
                     layout={layout}
                     cols={12}
@@ -277,8 +279,8 @@ export default function DashboardPage() {
                                                 <td className="py-2 px-3 text-slate-600">{session.participants} 位</td>
                                                 <td className="py-2 px-3">
                                                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${session.status === 'completed'
-                                                            ? 'bg-green-100 text-green-700'
-                                                            : 'bg-amber-100 text-amber-700'
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-amber-100 text-amber-700'
                                                         }`}>
                                                         {session.status === 'completed' ? '已完成' : '進行中'}
                                                     </span>
@@ -296,7 +298,7 @@ export default function DashboardPage() {
                             </div>
                         </Widget>
                     </div>
-                </GridLayout>
+                </Grid>
             </main>
         </div>
     );
