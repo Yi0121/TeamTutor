@@ -1,4 +1,8 @@
-import { Wrench, Zap, Clock, BarChart3 } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { Wrench, Zap, Clock, BarChart3, Power } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import mockData from '../../../mock_data.json';
@@ -154,34 +158,44 @@ export default function ToolsPage() {
 }
 
 function ToolCard({ tool }: { tool: Tool }) {
+    const [isEnabled, setIsEnabled] = useState(tool.status === 'active');
+
+    const handleToggle = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsEnabled(!isEnabled);
+    };
+
     return (
-        <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-slate-300 transition-all">
-            <div className="flex items-start justify-between mb-3">
-                <span className="text-3xl">{tool.icon}</span>
-                <Badge
-                    variant="secondary"
-                    className={
-                        tool.status === 'active'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-slate-100 text-slate-500'
-                    }
-                >
-                    {tool.status === 'active' ? '啟用' : '停用'}
-                </Badge>
-            </div>
+        <Link href={`/tools/${tool.id}`}>
+            <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer">
+                <div className="flex items-start justify-between mb-3">
+                    <span className="text-3xl">{tool.icon}</span>
+                    <button
+                        onClick={handleToggle}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${isEnabled
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                            }`}
+                    >
+                        <Power className="w-3 h-3" />
+                        {isEnabled ? '啟用' : '停用'}
+                    </button>
+                </div>
 
-            <h3 className="font-semibold text-slate-900 mb-1">{tool.name}</h3>
-            <p className="text-sm text-slate-500 mb-3">{tool.description}</p>
+                <h3 className="font-semibold text-slate-900 mb-1">{tool.name}</h3>
+                <p className="text-sm text-slate-500 mb-3">{tool.description}</p>
 
-            <div className="flex items-center justify-between text-sm">
-                <Badge variant="outline" className={getCategoryColor(tool.category)}>
-                    {getCategoryLabel(tool.category)}
-                </Badge>
-                <div className="flex items-center gap-1 text-slate-400">
-                    <BarChart3 className="w-4 h-4" />
-                    <span>{tool.callCount} 次</span>
+                <div className="flex items-center justify-between text-sm">
+                    <Badge variant="outline" className={getCategoryColor(tool.category)}>
+                        {getCategoryLabel(tool.category)}
+                    </Badge>
+                    <div className="flex items-center gap-1 text-slate-400">
+                        <BarChart3 className="w-4 h-4" />
+                        <span>{tool.callCount} 次</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

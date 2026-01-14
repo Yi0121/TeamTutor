@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -17,10 +18,14 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, sender }: MessageBubbleProps) {
     const isUser = sender && !sender.isAI;
-    const timestamp = new Date(message.timestamp).toLocaleTimeString('zh-TW', {
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+    const [timestamp, setTimestamp] = React.useState('');
+
+    React.useEffect(() => {
+        setTimestamp(new Date(message.timestamp).toLocaleTimeString('zh-TW', {
+            hour: '2-digit',
+            minute: '2-digit',
+        }));
+    }, [message.timestamp]);
 
     // User message: right-aligned, blue background
     if (isUser) {
@@ -38,7 +43,19 @@ export function MessageBubble({ message, sender }: MessageBubbleProps) {
         );
     }
 
-    // AI message: left-aligned, white background with avatar
+    // AI message: left-aligned
+    // Determine style based on role
+    let bubbleStyle = "bg-white border-slate-200";
+    let roleBadge = null;
+
+    if (sender?.role === 'teacher') {
+        bubbleStyle = "bg-amber-50 border-amber-200";
+        roleBadge = <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-normal">老師</span>;
+    } else if (sender?.role === 'assistant') {
+        bubbleStyle = "bg-indigo-50 border-indigo-200";
+        roleBadge = <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-normal">助教</span>;
+    }
+
     return (
         <div className="flex gap-3">
             {/* Avatar */}
@@ -50,14 +67,20 @@ export function MessageBubble({ message, sender }: MessageBubbleProps) {
             </Avatar>
 
             {/* Message Content */}
-            <div className="flex-1 max-w-[70%]">
+            <div className="flex-1 max-w-[85%]">
                 {/* Sender Name */}
-                <span className="text-sm font-medium text-slate-700 mb-1 block">
-                    {sender?.name || 'AI'}
-                </span>
+                <div className="flex items-center mb-1">
+                    <span className="text-sm font-medium text-slate-700">
+                        {sender?.name || 'AI'}
+                    </span>
+                    {roleBadge}
+                    <span className="text-xs text-slate-400 ml-2">
+                        {timestamp}
+                    </span>
+                </div>
 
                 {/* Message Bubble */}
-                <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-md shadow-sm border border-slate-100">
+                <div className={`px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm border ${bubbleStyle}`}>
                     {/* Tool Call Card (if present) */}
                     {message.toolCall && <ToolCallCard toolCall={message.toolCall} />}
 
@@ -136,8 +159,6 @@ export function MessageBubble({ message, sender }: MessageBubbleProps) {
                     </div>
                 </div>
 
-                {/* Timestamp */}
-                <span className="text-xs text-slate-400 mt-1 ml-1 block">{timestamp}</span>
             </div>
         </div>
     );

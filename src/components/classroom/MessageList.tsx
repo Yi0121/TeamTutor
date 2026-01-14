@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageBubble } from './MessageBubble';
 import type { Message, Participant } from '@/types';
 
@@ -13,14 +12,18 @@ interface MessageListProps {
 export function MessageList({ messages, participantMap }: MessageListProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
+    const prevMessagesLength = useRef(messages.length);
 
-    // Auto-scroll to bottom when messages change
+    // Auto-scroll to bottom only when new messages are added
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messages.length > prevMessagesLength.current) {
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+        prevMessagesLength.current = messages.length;
     }, [messages]);
 
     return (
-        <ScrollArea className="h-full" ref={scrollRef}>
+        <div className="h-full overflow-y-auto custom-scrollbar" ref={scrollRef}>
             <div className="px-6 py-4 space-y-4">
                 {messages.map((message) => {
                     const sender = participantMap.get(message.senderId);
@@ -34,6 +37,6 @@ export function MessageList({ messages, participantMap }: MessageListProps) {
                 })}
                 <div ref={bottomRef} />
             </div>
-        </ScrollArea>
+        </div>
     );
 }
