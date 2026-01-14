@@ -123,8 +123,8 @@ export default function AdminPage() {
                         <button
                             onClick={() => setActiveTab('users')}
                             className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'users'
-                                    ? 'text-white'
-                                    : 'text-slate-400 hover:text-slate-200'
+                                ? 'text-white'
+                                : 'text-slate-400 hover:text-slate-200'
                                 }`}
                         >
                             使用者管理
@@ -135,8 +135,8 @@ export default function AdminPage() {
                         <button
                             onClick={() => setActiveTab('system')}
                             className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'system'
-                                    ? 'text-white'
-                                    : 'text-slate-400 hover:text-slate-200'
+                                ? 'text-white'
+                                : 'text-slate-400 hover:text-slate-200'
                                 }`}
                         >
                             系統監控
@@ -226,8 +226,8 @@ export default function AdminPage() {
                                                 <td className="py-3 px-6">
                                                     <span
                                                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${user.status === 'active'
-                                                                ? 'bg-green-100 text-green-700'
-                                                                : 'bg-slate-100 text-slate-500'
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-slate-100 text-slate-500'
                                                             }`}
                                                     >
                                                         {user.status === 'active' ? '正常' : '停用'}

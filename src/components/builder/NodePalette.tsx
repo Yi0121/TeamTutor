@@ -1,6 +1,6 @@
 'use client';
 
-import { Bot, Zap, GitBranch, Play } from 'lucide-react';
+import { Bot, Zap, GitBranch, Play, StopCircle } from 'lucide-react';
 
 const nodeTypes = [
     {
@@ -30,6 +30,13 @@ const nodeTypes = [
         icon: Play,
         color: 'bg-purple-500',
         description: '執行特定動作',
+    },
+    {
+        type: 'end',
+        label: '結束',
+        icon: StopCircle,
+        color: 'bg-red-500',
+        description: '工作流程終點',
     },
 ];
 

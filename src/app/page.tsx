@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bot, Workflow, BarChart3, MessageSquare, Wrench, Database, Shield } from 'lucide-react';
+import { Bot, Workflow, BarChart3, MessageSquare, Wrench, Database, Shield, Code } from 'lucide-react';
 
 const pages = [
   {
@@ -50,6 +50,13 @@ const pages = [
     title: '系統管理',
     description: '權限與系統監控',
     color: 'bg-slate-600',
+  },
+  {
+    href: '/embed',
+    icon: Code,
+    title: '嵌入設定',
+    description: '外部網站整合',
+    color: 'bg-indigo-500',
   },
 ];
 
