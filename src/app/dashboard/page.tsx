@@ -159,6 +159,14 @@ export default function DashboardPage() {
                                 ))}
                             </div>
 
+                            {/* Advanced Analytics Button */}
+                            <Link href="/dashboard/analytics">
+                                <Button variant="outline" className="gap-2">
+                                    <TrendingUp className="w-4 h-4" />
+                                    進階分析
+                                </Button>
+                            </Link>
+
                             {/* Reset Layout Button */}
                             <Button variant="ghost" size="icon" onClick={resetLayout} title="重設版面">
                                 <RotateCcw className="w-4 h-4" />

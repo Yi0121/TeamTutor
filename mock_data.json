@@ -655,5 +655,161 @@
             "usageCount": 134,
             "rating": 4.5
         }
-    ]
+    ],
+    "analytics": {
+        "usageByModel": [
+            {
+                "modelId": "gpt-4o",
+                "name": "GPT-4o",
+                "tokens": 500000,
+                "cost": 15.0
+            },
+            {
+                "modelId": "gpt-3.5-turbo",
+                "name": "GPT-3.5 Turbo",
+                "tokens": 1200000,
+                "cost": 1.2
+            },
+            {
+                "modelId": "claude-3-opus",
+                "name": "Claude 3 Opus",
+                "tokens": 300000,
+                "cost": 21.0
+            },
+            {
+                "modelId": "gemini-pro",
+                "name": "Gemini Pro",
+                "tokens": 800000,
+                "cost": 0.0
+            }
+        ],
+        "usageByUser": [
+            {
+                "userId": "user-001",
+                "name": "王小明",
+                "role": "Student",
+                "sessions": 45,
+                "tokens": 120000
+            },
+            {
+                "userId": "teacher-001",
+                "name": "李老師",
+                "role": "Teacher",
+                "sessions": 80,
+                "tokens": 450000
+            },
+            {
+                "userId": "user-002",
+                "name": "陳小美",
+                "role": "Admin",
+                "sessions": 150,
+                "tokens": 890000
+            },
+            {
+                "userId": "user-003",
+                "name": "林大華",
+                "role": "Student",
+                "sessions": 20,
+                "tokens": 45000
+            }
+        ],
+        "hourlyActivity": [
+            {
+                "hour": "00:00",
+                "users": 5
+            },
+            {
+                "hour": "01:00",
+                "users": 2
+            },
+            {
+                "hour": "02:00",
+                "users": 1
+            },
+            {
+                "hour": "03:00",
+                "users": 0
+            },
+            {
+                "hour": "04:00",
+                "users": 0
+            },
+            {
+                "hour": "05:00",
+                "users": 1
+            },
+            {
+                "hour": "06:00",
+                "users": 3
+            },
+            {
+                "hour": "07:00",
+                "users": 12
+            },
+            {
+                "hour": "08:00",
+                "users": 45
+            },
+            {
+                "hour": "09:00",
+                "users": 89
+            },
+            {
+                "hour": "10:00",
+                "users": 120
+            },
+            {
+                "hour": "11:00",
+                "users": 115
+            },
+            {
+                "hour": "12:00",
+                "users": 65
+            },
+            {
+                "hour": "13:00",
+                "users": 95
+            },
+            {
+                "hour": "14:00",
+                "users": 130
+            },
+            {
+                "hour": "15:00",
+                "users": 125
+            },
+            {
+                "hour": "16:00",
+                "users": 98
+            },
+            {
+                "hour": "17:00",
+                "users": 75
+            },
+            {
+                "hour": "18:00",
+                "users": 55
+            },
+            {
+                "hour": "19:00",
+                "users": 68
+            },
+            {
+                "hour": "20:00",
+                "users": 85
+            },
+            {
+                "hour": "21:00",
+                "users": 70
+            },
+            {
+                "hour": "22:00",
+                "users": 45
+            },
+            {
+                "hour": "23:00",
+                "users": 20
+            }
+        ]
+    }
 }
