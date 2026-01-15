@@ -74,6 +74,14 @@ export default function KnowledgeBaseDetailPage() {
         ]);
     };
 
+    const handleRestore = (version: string) => {
+        if (confirm(`確定要將知識庫還原至版本 ${version} 嗎？\n目前的變更將會被覆蓋。`)) {
+            // Mock restore API call
+            alert(`已成功還原至版本 ${version}！(Mock)`);
+            // In a real app, we would reload data or redirect
+        }
+    };
+
     const tabs = [
         { id: 'files', label: '文件管理', icon: FileText },
         { id: 'settings', label: '設定', icon: Settings },
@@ -111,8 +119,8 @@ export default function KnowledgeBaseDetailPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`flex items-center gap-2 pb-3 border-b-2 transition-colors ${activeTab === tab.id
-                                            ? 'border-blue-500 text-blue-600'
-                                            : 'border-transparent text-slate-500 hover:text-slate-700'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-slate-500 hover:text-slate-700'
                                         }`}
                                 >
                                     <Icon className="w-4 h-4" />
@@ -323,7 +331,7 @@ export default function KnowledgeBaseDetailPage() {
                                                         <span className="text-sm text-slate-500">{v.date}</span>
                                                     </div>
                                                     {i !== 0 && (
-                                                        <Button variant="outline" size="sm">
+                                                        <Button variant="outline" size="sm" onClick={() => handleRestore(v.version)}>
                                                             <RotateCcw className="w-3 h-3 mr-1" />
                                                             還原
                                                         </Button>
