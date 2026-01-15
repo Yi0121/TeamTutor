@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Link from 'next/link';
+import { BatchImportModal } from '@/components/admin/BatchImportModal';
 
 // Mock Organization Data
 const organizationData = {
@@ -108,8 +109,23 @@ export default function OrganizationPage() {
         setSelectedUsers(newSelected);
     };
 
+    const [importModalOpen, setImportModalOpen] = useState(false);
+
+    const handleBatchImport = (users: any[]) => {
+        // TODO: Update local state with new users
+        console.log('Imported users:', users);
+        // Refresh data or show toast
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
+            {/* Import Modal */}
+            <BatchImportModal
+                open={importModalOpen}
+                onOpenChange={setImportModalOpen}
+                onImport={handleBatchImport}
+            />
+
             {/* Header */}
             <header className="bg-white border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-6 py-6">
@@ -126,9 +142,9 @@ export default function OrganizationPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" className="gap-2">
+                            <Button variant="outline" className="gap-2" onClick={() => setImportModalOpen(true)}>
                                 <UserPlus className="w-4 h-4" />
-                                新增使用者
+                                匯入/新增使用者
                             </Button>
                             <Button className="gap-2">
                                 <Plus className="w-4 h-4" />
