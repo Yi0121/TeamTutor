@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bot, Workflow, BarChart3, MessageSquare, Wrench, Database, Shield, Code } from 'lucide-react';
+import { Bot, Workflow, BarChart3, MessageSquare, Wrench, Database, Shield, Code, History, Layout } from 'lucide-react';
 
 const pages = [
   {
@@ -24,11 +24,25 @@ const pages = [
     color: 'bg-purple-500',
   },
   {
+    href: '/templates',
+    icon: Layout,
+    title: '情境模板',
+    description: '預設與自訂模板',
+    color: 'bg-violet-500',
+  },
+  {
     href: '/dashboard',
     icon: BarChart3,
     title: '學習儀表板',
     description: '數據分析與報告',
     color: 'bg-amber-500',
+  },
+  {
+    href: '/history',
+    icon: History,
+    title: '學習歷程',
+    description: '歷程回放與標註',
+    color: 'bg-orange-500',
   },
   {
     href: '/tools',

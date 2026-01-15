@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Link from 'next/link';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -254,7 +255,7 @@ export default function DashboardPage() {
 
                     {/* Recent Sessions Table */}
                     <div key="recent-sessions">
-                        <Widget title="最近對話紀錄" headerAction={<Button variant="outline" size="sm">查看全部</Button>}>
+                        <Widget title="最近對話紀錄" headerAction={<Link href="/history"><Button variant="outline" size="sm">查看全部</Button></Link>}>
                             <div className="overflow-auto h-full">
                                 <table className="w-full">
                                     <thead>
@@ -286,10 +287,12 @@ export default function DashboardPage() {
                                                     </span>
                                                 </td>
                                                 <td className="py-2 px-3 text-right">
-                                                    <Button variant="ghost" size="sm" className="gap-1">
-                                                        <Play className="w-3 h-3" />
-                                                        重播
-                                                    </Button>
+                                                    <Link href={`/history/${session.id}`}>
+                                                        <Button variant="ghost" size="sm" className="gap-1">
+                                                            <Play className="w-3 h-3" />
+                                                            重播
+                                                        </Button>
+                                                    </Link>
                                                 </td>
                                             </tr>
                                         ))}

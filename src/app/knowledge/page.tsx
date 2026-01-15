@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
     Database,
     Upload,
@@ -153,34 +154,41 @@ export default function KnowledgePage() {
 
 function KnowledgeBaseCard({ kb }: { kb: KnowledgeBase }) {
     return (
-        <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-slate-300 transition-all">
-            <div className="flex items-start justify-between mb-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                    <Database className="w-5 h-5 text-blue-600" />
+        <Link href={`/knowledge/${kb.id}`}>
+            <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-blue-400 transition-all cursor-pointer h-full">
+                <div className="flex items-start justify-between mb-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                        <Database className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-slate-400 hover:text-red-500"
+                        onClick={(e) => e.preventDefault()}
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </Button>
                 </div>
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-500">
-                    <Trash2 className="w-4 h-4" />
-                </Button>
-            </div>
 
-            <h3 className="font-semibold text-slate-900 mb-1">{kb.name}</h3>
-            <p className="text-sm text-slate-500 mb-4">{kb.description}</p>
+                <h3 className="font-semibold text-slate-900 mb-1">{kb.name}</h3>
+                <p className="text-sm text-slate-500 mb-4">{kb.description}</p>
 
-            <div className="flex items-center gap-4 text-sm text-slate-500">
-                <div className="flex items-center gap-1">
-                    <FileText className="w-4 h-4" />
-                    <span>{kb.documentCount} 文件</span>
+                <div className="flex items-center gap-4 text-sm text-slate-500">
+                    <div className="flex items-center gap-1">
+                        <FileText className="w-4 h-4" />
+                        <span>{kb.documentCount} 文件</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <Database className="w-4 h-4" />
+                        <span>{kb.chunkCount} chunks</span>
+                    </div>
                 </div>
-                <div className="flex items-center gap-1">
-                    <Database className="w-4 h-4" />
-                    <span>{kb.chunkCount} chunks</span>
+
+                <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">
+                    最後更新：{new Date(kb.lastUpdated).toLocaleDateString('zh-TW')}
                 </div>
             </div>
-
-            <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">
-                最後更新：{new Date(kb.lastUpdated).toLocaleDateString('zh-TW')}
-            </div>
-        </div>
+        </Link>
     );
 }
 

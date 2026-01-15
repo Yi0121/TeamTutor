@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import {
     ReactFlow,
     Background,
@@ -9,6 +9,8 @@ import {
     addEdge,
     useNodesState,
     useEdgesState,
+    useReactFlow,
+    ReactFlowProvider,
     type Node,
     type Edge,
     type OnConnect,
@@ -81,12 +83,18 @@ const initialEdges: Edge[] = [
     { id: 'e5', source: 'action-1', target: 'end-1' },
 ];
 
-export default function BuilderPage() {
+// Workflow JSON schema version
+const WORKFLOW_VERSION = '1.0';
+
+function BuilderCanvas() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
+
+    const { zoomIn, zoomOut, fitView } = useReactFlow();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const onConnect: OnConnect = useCallback(
         (params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -130,8 +138,90 @@ export default function BuilderPage() {
         [setNodes]
     );
 
+    // === Workflow Save/Load/Export ===
+
+    const handleSave = useCallback(() => {
+        const workflow = {
+            version: WORKFLOW_VERSION,
+            name: 'Untitled Workflow',
+            createdAt: new Date().toISOString(),
+            nodes: nodes.map(n => ({
+                id: n.id,
+                type: n.type,
+                position: n.position,
+                data: n.data,
+            })),
+            edges: edges.map(e => ({
+                id: e.id,
+                source: e.source,
+                target: e.target,
+                label: e.label,
+                animated: e.animated,
+            })),
+        };
+
+        const blob = new Blob([JSON.stringify(workflow, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `workflow-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [nodes, edges]);
+
+    const handleLoad = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
+
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const workflow = JSON.parse(event.target?.result as string);
+                if (workflow.nodes && workflow.edges) {
+                    setNodes(workflow.nodes);
+                    setEdges(workflow.edges);
+                }
+            } catch {
+                console.error('Invalid workflow file');
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // Reset for re-upload
+    }, [setNodes, setEdges]);
+
+    const handleExport = useCallback(() => {
+        const workflow = {
+            version: WORKFLOW_VERSION,
+            name: 'Exported Workflow',
+            exportedAt: new Date().toISOString(),
+            nodes,
+            edges,
+        };
+
+        const blob = new Blob([JSON.stringify(workflow, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `workflow-export-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [nodes, edges]);
+
     return (
         <div className="h-screen flex bg-slate-100">
+            {/* Hidden file input for load */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleFileChange}
+                className="hidden"
+            />
+
             {/* Left Panel - Node Palette */}
             <NodePalette />
 
@@ -176,15 +266,15 @@ export default function BuilderPage() {
                 {/* Toolbar */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
                     <CanvasToolbar
-                        onSave={() => alert('Workflow 儲存成功!')}
-                        onLoad={() => alert('載入範本')}
-                        onExport={() => alert('匯出 JSON')}
-                        onPreview={() => alert('預覽模式')}
+                        onSave={handleSave}
+                        onLoad={handleLoad}
+                        onExport={handleExport}
+                        onPreview={() => alert('預覽模式 (尚未實作)')}
                         onUndo={() => { }}
                         onRedo={() => { }}
-                        onZoomIn={() => { }}
-                        onZoomOut={() => { }}
-                        onFitView={() => { }}
+                        onZoomIn={() => zoomIn()}
+                        onZoomOut={() => zoomOut()}
+                        onFitView={() => fitView()}
                         canUndo={historyIndex > 0}
                         canRedo={historyIndex < history.length - 1}
                     />
@@ -194,5 +284,13 @@ export default function BuilderPage() {
             {/* Right Panel - Properties */}
             <PropertyPanel selectedNode={selectedNode} />
         </div>
+    );
+}
+
+export default function BuilderPage() {
+    return (
+        <ReactFlowProvider>
+            <BuilderCanvas />
+        </ReactFlowProvider>
     );
 }

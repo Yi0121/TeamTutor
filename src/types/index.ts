@@ -68,6 +68,7 @@ export interface AgentConfig {
     knowledgeLevel: number; // 1-10
     temperature: number; // 0-1
     communicationStyle: CommunicationStyle;
+    communicationStyleDetailed?: CommunicationStyleDetailed; // Three-axis style (optional)
     ragKnowledgeBaseIds: string[];
     suggestedQuestions: string[];
     createdAt: string;
@@ -84,6 +85,13 @@ export interface CommunicationStyleOption {
     id: CommunicationStyle;
     name: string;
     description: string;
+}
+
+// Detailed communication style with three axes (per project.md spec)
+export interface CommunicationStyleDetailed {
+    formality: number;    // 0 = casual, 100 = formal
+    verbosity: number;    // 0 = concise, 100 = verbose
+    encouragement: number; // 0 = strict, 100 = encouraging
 }
 
 // =============================================================================

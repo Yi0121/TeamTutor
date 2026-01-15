@@ -217,27 +217,105 @@ export default function AgentEditPage() {
                             </select>
                         </div>
 
-                        {/* Communication Style */}
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                溝通風格
+                        {/* Communication Style - Three Axes */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-3">
+                                溝通風格設定
                             </label>
-                            <select
-                                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={agent.communicationStyle}
-                                onChange={(e) =>
-                                    setAgent({
-                                        ...agent,
-                                        communicationStyle: e.target.value as AgentConfig['communicationStyle'],
-                                    })
-                                }
-                            >
-                                {communicationStyles.map((style) => (
-                                    <option key={style.id} value={style.id}>
-                                        {style.name} - {style.description}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* Formality Slider */}
+                                <div>
+                                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                                        <span>正式度</span>
+                                        <span>{agent.communicationStyleDetailed?.formality ?? 50}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        step="5"
+                                        value={agent.communicationStyleDetailed?.formality ?? 50}
+                                        onChange={(e) =>
+                                            setAgent({
+                                                ...agent,
+                                                communicationStyleDetailed: {
+                                                    ...agent.communicationStyleDetailed,
+                                                    formality: parseInt(e.target.value),
+                                                    verbosity: agent.communicationStyleDetailed?.verbosity ?? 50,
+                                                    encouragement: agent.communicationStyleDetailed?.encouragement ?? 50,
+                                                },
+                                            })
+                                        }
+                                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <div className="flex justify-between text-xs text-slate-400 mt-1">
+                                        <span>輕鬆</span>
+                                        <span>正式</span>
+                                    </div>
+                                </div>
+
+                                {/* Verbosity Slider */}
+                                <div>
+                                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                                        <span>詳盡度</span>
+                                        <span>{agent.communicationStyleDetailed?.verbosity ?? 50}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        step="5"
+                                        value={agent.communicationStyleDetailed?.verbosity ?? 50}
+                                        onChange={(e) =>
+                                            setAgent({
+                                                ...agent,
+                                                communicationStyleDetailed: {
+                                                    ...agent.communicationStyleDetailed,
+                                                    formality: agent.communicationStyleDetailed?.formality ?? 50,
+                                                    verbosity: parseInt(e.target.value),
+                                                    encouragement: agent.communicationStyleDetailed?.encouragement ?? 50,
+                                                },
+                                            })
+                                        }
+                                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <div className="flex justify-between text-xs text-slate-400 mt-1">
+                                        <span>簡潔</span>
+                                        <span>詳盡</span>
+                                    </div>
+                                </div>
+
+                                {/* Encouragement Slider */}
+                                <div>
+                                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                                        <span>鼓勵程度</span>
+                                        <span>{agent.communicationStyleDetailed?.encouragement ?? 50}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        step="5"
+                                        value={agent.communicationStyleDetailed?.encouragement ?? 50}
+                                        onChange={(e) =>
+                                            setAgent({
+                                                ...agent,
+                                                communicationStyleDetailed: {
+                                                    ...agent.communicationStyleDetailed,
+                                                    formality: agent.communicationStyleDetailed?.formality ?? 50,
+                                                    verbosity: agent.communicationStyleDetailed?.verbosity ?? 50,
+                                                    encouragement: parseInt(e.target.value),
+                                                },
+                                            })
+                                        }
+                                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <div className="flex justify-between text-xs text-slate-400 mt-1">
+                                        <span>嚴格</span>
+                                        <span>鼓勵</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Temperature Slider */}
