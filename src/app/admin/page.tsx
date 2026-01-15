@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
     Users,
     Shield,
@@ -144,6 +145,20 @@ export default function AdminPage() {
                                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
                             )}
                         </button>
+                        <Link href="/admin/organization">
+                            <button
+                                className="pb-4 text-sm font-medium transition-colors relative text-slate-400 hover:text-slate-200"
+                            >
+                                組織架構
+                            </button>
+                        </Link>
+                        <Link href="/admin/quota">
+                            <button
+                                className="pb-4 text-sm font-medium transition-colors relative text-slate-400 hover:text-slate-200"
+                            >
+                                配額管理
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </header>
