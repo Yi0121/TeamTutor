@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Wrench, Zap, Clock, BarChart3, Power } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AddToolModal } from '@/components/tools/AddToolModal';
 import mockData from '../../../mock_data.json';
 
 interface Tool {
@@ -39,6 +40,10 @@ function getCategoryColor(category: string) {
             return 'bg-green-100 text-green-700';
         case 'code':
             return 'bg-purple-100 text-purple-700';
+        case 'visualization':
+            return 'bg-amber-100 text-amber-700';
+        case 'utility':
+            return 'bg-slate-100 text-slate-700';
         default:
             return 'bg-slate-100 text-slate-700';
     }
@@ -52,14 +57,38 @@ function getCategoryLabel(category: string) {
             return '研究';
         case 'code':
             return '程式';
+        case 'visualization':
+            return '視覺化';
+        case 'utility':
+            return '實用工具';
         default:
             return category;
     }
 }
 
 export default function ToolsPage() {
+    const [addModalOpen, setAddModalOpen] = useState(false);
+
+    const handleAddTool = (toolDef: {
+        name: string;
+        description: string;
+        icon: string;
+        category: string;
+    }) => {
+        // TODO: In production, send to backend
+        console.log('New tool created:', toolDef);
+        alert(`工具 "${toolDef.name}" 已建立（Mock 模式，實際需後端支援）`);
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
+            {/* Add Tool Modal */}
+            <AddToolModal
+                open={addModalOpen}
+                onOpenChange={setAddModalOpen}
+                onSave={handleAddTool}
+            />
+
             {/* Header */}
             <header className="bg-white border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-6 py-6">
@@ -71,7 +100,7 @@ export default function ToolsPage() {
                             </h1>
                             <p className="text-slate-500 mt-1">管理與監控 AI 代理人可使用的外部工具</p>
                         </div>
-                        <Button>
+                        <Button onClick={() => setAddModalOpen(true)}>
                             <Zap className="w-4 h-4 mr-2" />
                             新增工具
                         </Button>
@@ -174,8 +203,8 @@ function ToolCard({ tool }: { tool: Tool }) {
                     <button
                         onClick={handleToggle}
                         className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${isEnabled
-                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                             }`}
                     >
                         <Power className="w-3 h-3" />
