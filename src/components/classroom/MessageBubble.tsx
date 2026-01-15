@@ -11,7 +11,9 @@ import { ToolCallCard } from './ToolCallCard';
 // We import Message from types but might need to export it for consumers who import from here
 // Or we just define a local interface that extends the base one
 import type { Message as BaseMessage, Participant } from '@/types';
+import { GeoGebraEmbed } from '@/components/tools/GeoGebraEmbed';
 import 'katex/dist/katex.min.css';
+
 
 export interface Message extends BaseMessage { }
 
@@ -90,7 +92,22 @@ export default function MessageBubble({ message, sender, isOwn, mode = 'live', o
                 {/* Message Bubble */}
                 <div className={`px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm border ${bubbleStyle}`}>
                     {/* Tool Call Card (if present) */}
-                    {message.toolCall && <ToolCallCard toolCall={message.toolCall} />}
+                    {message.toolCall && (
+                        message.toolCall.toolName === 'board_utils' &&
+                            message.toolCall.input?.action === 'draw_geogebra' ? (
+                            <div className="mb-4">
+                                <GeoGebraEmbed
+                                    width="100%"
+                                    height={450}
+                                    showToolbar={false}
+                                    commands={message.toolCall.input.commands as string[]}
+                                    appletId={`ggb-${message.id}`}
+                                />
+                            </div>
+                        ) : (
+                            <ToolCallCard toolCall={message.toolCall} />
+                        )
+                    )}
 
                     {/* Markdown Content */}
                     <div className="prose prose-sm prose-slate max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-headings:my-2 prose-pre:my-2 prose-table:my-2">
