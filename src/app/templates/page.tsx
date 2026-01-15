@@ -13,10 +13,18 @@ import {
     Plus,
     Copy,
     Eye,
+    X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 // Mock Template Data
 const agentTemplates = [
@@ -138,10 +146,14 @@ const workflowTemplates = [
 type TabType = 'agent' | 'workflow';
 type FilterType = 'all' | 'system' | 'custom';
 
+type TemplateType = (typeof agentTemplates)[0] | (typeof workflowTemplates)[0];
+
 export default function TemplatesPage() {
     const [activeTab, setActiveTab] = useState<TabType>('agent');
     const [filter, setFilter] = useState<FilterType>('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [previewTemplate, setPreviewTemplate] = useState<TemplateType | null>(null);
+    const [previewType, setPreviewType] = useState<TabType>('agent');
 
     const templates = activeTab === 'agent' ? agentTemplates : workflowTemplates;
 
@@ -172,8 +184,113 @@ export default function TemplatesPage() {
         }
     };
 
+    const handlePreview = (template: TemplateType, type: TabType) => {
+        setPreviewTemplate(template);
+        setPreviewType(type);
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
+            {/* Template Preview Modal */}
+            <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${previewType === 'agent' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'}`}>
+                                {previewType === 'agent' ? <Bot className="w-5 h-5" /> : <GitBranch className="w-5 h-5" />}
+                            </div>
+                            <div>
+                                <DialogTitle>{previewTemplate?.name}</DialogTitle>
+                                <DialogDescription className="flex items-center gap-2 mt-1">
+                                    <User className="w-3 h-3" />
+                                    {previewTemplate?.author}
+                                    {previewTemplate?.isSystem && (
+                                        <Badge variant="secondary" className="text-xs ml-2">
+                                            <Star className="w-3 h-3 mr-1" />
+                                            系統預設
+                                        </Badge>
+                                    )}
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </DialogHeader>
+
+                    <div className="space-y-4 mt-4">
+                        {/* Description */}
+                        <div>
+                            <h4 className="text-sm font-medium text-slate-700 mb-2">描述</h4>
+                            <p className="text-slate-600">{previewTemplate?.description}</p>
+                        </div>
+
+                        {/* Tags */}
+                        <div>
+                            <h4 className="text-sm font-medium text-slate-700 mb-2">標籤</h4>
+                            <div className="flex flex-wrap gap-2">
+                                {previewTemplate?.tags.map((tag) => (
+                                    <Badge key={tag} variant="outline" className="text-xs">
+                                        <Tag className="w-3 h-3 mr-1" />
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Preview Content (for agent templates) */}
+                        {'preview' in (previewTemplate || {}) && (
+                            <div>
+                                <h4 className="text-sm font-medium text-slate-700 mb-2">System Prompt 預覽</h4>
+                                <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 font-mono text-sm text-slate-700 whitespace-pre-wrap">
+                                    {(previewTemplate as typeof agentTemplates[0])?.preview}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Node Count (for workflow templates) */}
+                        {'nodeCount' in (previewTemplate || {}) && (
+                            <div>
+                                <h4 className="text-sm font-medium text-slate-700 mb-2">工作流資訊</h4>
+                                <div className="flex items-center gap-4 text-sm text-slate-600">
+                                    <span className="flex items-center gap-1">
+                                        <GitBranch className="w-4 h-4" />
+                                        {(previewTemplate as typeof workflowTemplates[0])?.nodeCount} 個節點
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <Copy className="w-4 h-4" />
+                                        已被使用 {previewTemplate?.usageCount} 次
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Stats */}
+                        <div className="flex items-center gap-4 text-sm text-slate-500 pt-4 border-t">
+                            <span className="flex items-center gap-1">
+                                <Copy className="w-4 h-4" />
+                                使用次數: {previewTemplate?.usageCount}
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                建立日期: {previewTemplate?.createdAt}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
+                            關閉
+                        </Button>
+                        <Button onClick={() => {
+                            if (previewTemplate) {
+                                handleUseTemplate(previewTemplate.id, previewTemplate.name, previewType);
+                                setPreviewTemplate(null);
+                            }
+                        }}>
+                            使用此模板
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
             {/* Header */}
             <header className="bg-white border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-6 py-6">
@@ -253,6 +370,7 @@ export default function TemplatesPage() {
                                 template={template}
                                 type={activeTab}
                                 onUse={() => handleUseTemplate(template.id, template.name, activeTab)}
+                                onPreview={() => handlePreview(template, activeTab)}
                             />
                         ))}
                     </div>
@@ -267,10 +385,12 @@ function TemplateCard({
     template,
     type,
     onUse,
+    onPreview,
 }: {
     template: (typeof agentTemplates)[0] | (typeof workflowTemplates)[0];
     type: TabType;
     onUse: () => void;
+    onPreview: () => void;
 }) {
     return (
         <div className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all group flex flex-col h-full">
@@ -329,7 +449,7 @@ function TemplateCard({
                     </span>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" className="gap-1 h-8 px-2 text-slate-500">
+                    <Button variant="ghost" size="sm" className="gap-1 h-8 px-2 text-slate-500" onClick={onPreview}>
                         <Eye className="w-3 h-3" />
                         預覽
                     </Button>
