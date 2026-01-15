@@ -30,8 +30,12 @@ import {
     Download,
     GripVertical,
     RotateCcw,
+    AlertTriangle,
+    Bot,
+    Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import mockData from '../../../mock_data.json';
 import type { DashboardStats, DailyUsage, RecentSession } from '@/types';
 
@@ -60,6 +64,23 @@ const abilityData = [
     { ability: '創造力', score: stats.abilityScores.creativity, fullMark: 100 },
 ];
 
+interface Alert {
+    id: string;
+    type: 'warning' | 'error' | 'info';
+    message: string;
+    time: string;
+}
+
+interface PopularAgent {
+    id: string;
+    name: string;
+    usageCount: number;
+    rating: number;
+}
+
+const alertsData = (mockData as any).alerts as Alert[];
+const popularAgentsData = (mockData as any).popularAgents as PopularAgent[];
+
 // Default layout for widgets
 const defaultLayout = [
     { i: 'stat-1', x: 0, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
@@ -68,7 +89,9 @@ const defaultLayout = [
     { i: 'stat-4', x: 9, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
     { i: 'bar-chart', x: 0, y: 2, w: 6, h: 5, minW: 4, minH: 4 },
     { i: 'radar-chart', x: 6, y: 2, w: 6, h: 5, minW: 4, minH: 4 },
-    { i: 'recent-sessions', x: 0, y: 7, w: 12, h: 6, minW: 6, minH: 4 },
+    { i: 'alerts', x: 0, y: 7, w: 4, h: 4, minW: 3, minH: 3 },
+    { i: 'popular-agents', x: 4, y: 7, w: 4, h: 4, minW: 3, minH: 3 },
+    { i: 'recent-sessions', x: 8, y: 7, w: 4, h: 4, minW: 4, minH: 3 },
 ];
 
 export default function DashboardPage() {
@@ -253,7 +276,65 @@ export default function DashboardPage() {
                         </Widget>
                     </div>
 
-                    {/* Recent Sessions Table */}
+                    {/* Alerts Widget */}
+                    <div key="alerts">
+                        <Widget title="異常警示" headerAction={<Badge variant="outline" className="text-xs">{alertsData.length}</Badge>}>
+                            <div className="space-y-2 overflow-auto h-full">
+                                {alertsData.map((alert) => (
+                                    <div
+                                        key={alert.id}
+                                        className={`p-3 rounded-lg border flex items-start gap-3 ${alert.type === 'error'
+                                            ? 'bg-red-50 border-red-200'
+                                            : alert.type === 'warning'
+                                                ? 'bg-amber-50 border-amber-200'
+                                                : 'bg-blue-50 border-blue-200'
+                                            }`}
+                                    >
+                                        <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${alert.type === 'error'
+                                            ? 'text-red-500'
+                                            : alert.type === 'warning'
+                                                ? 'text-amber-500'
+                                                : 'text-blue-500'
+                                            }`} />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm text-slate-700 font-medium">{alert.message}</p>
+                                            <p className="text-xs text-slate-500 mt-1">{new Date(alert.time).toLocaleString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Widget>
+                    </div>
+
+                    {/* Popular Agents Widget */}
+                    <div key="popular-agents">
+                        <Widget title="熱門代理人" headerAction={<Link href="/agents"><Button variant="ghost" size="sm" className="text-xs h-7">查看全部</Button></Link>}>
+                            <div className="space-y-2 overflow-auto h-full">
+                                {popularAgentsData.map((agent, index) => (
+                                    <div
+                                        key={agent.id}
+                                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                                    >
+                                        <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                            {index + 1}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <Bot className="w-4 h-4 text-blue-500" />
+                                                <span className="text-sm font-medium text-slate-900 truncate">{agent.name}</span>
+                                            </div>
+                                            <p className="text-xs text-slate-500">{agent.usageCount} 次使用</p>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-amber-500">
+                                            <Star className="w-3 h-3 fill-current" />
+                                            <span className="text-xs font-medium">{agent.rating}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Widget>
+                    </div>
+
                     <div key="recent-sessions">
                         <Widget title="最近對話紀錄" headerAction={<Link href="/history"><Button variant="outline" size="sm">查看全部</Button></Link>}>
                             <div className="overflow-auto h-full">

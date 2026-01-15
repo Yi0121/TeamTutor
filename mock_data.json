@@ -609,5 +609,51 @@
         "vectorDbStatus": "healthy",
         "errorRate": 0.02,
         "apiLatency": 350
-    }
+    },
+    "alerts": [
+        {
+            "id": "alert-001",
+            "type": "warning",
+            "message": "配額使用量已達 85%",
+            "time": "2026-01-14T08:55:00Z"
+        },
+        {
+            "id": "alert-002",
+            "type": "error",
+            "message": "代理人「數學導師」回應時間過長",
+            "time": "2026-01-14T08:48:00Z"
+        },
+        {
+            "id": "alert-003",
+            "type": "info",
+            "message": "系統將於今晚 2:00 進行維護",
+            "time": "2026-01-14T07:00:00Z"
+        }
+    ],
+    "popularAgents": [
+        {
+            "id": "agent-math",
+            "name": "友善數學導師",
+            "usageCount": 245,
+            "rating": 4.8
+        },
+        {
+            "id": "agent-english",
+            "name": "英語對話夥伴",
+            "usageCount": 189,
+            "rating": 4.6
+        },
+        {
+            "id": "agent-code",
+            "name": "程式碼審查專家",
+            "usageCount": 156,
+            "rating": 4.9
+        },
+        {
+            "id": "agent-history",
+            "name": "歷史情境模擬者",
+            "usageCount": 134,
+            "rating": 4.5
+        }
+    ]
 }
