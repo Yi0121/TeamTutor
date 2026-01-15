@@ -73,12 +73,20 @@ export default function HistoryListPage() {
                                             <Badge className="bg-slate-100 text-slate-600">
                                                 {session.duration}
                                             </Badge>
-                                            <Link href={`/history/${session.id}`}>
-                                                <Button>
-                                                    <Play className="w-4 h-4 mr-2" />
-                                                    回放
-                                                </Button>
-                                            </Link>
+                                            <div className="flex gap-2">
+                                                <Link href={`/history/${session.id}/report`}>
+                                                    <Button variant="outline">
+                                                        <MessageSquare className="w-4 h-4 mr-2" />
+                                                        省思
+                                                    </Button>
+                                                </Link>
+                                                <Link href={`/history/${session.id}`}>
+                                                    <Button>
+                                                        <Play className="w-4 h-4 mr-2" />
+                                                        回放
+                                                    </Button>
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>

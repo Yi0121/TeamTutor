@@ -200,9 +200,13 @@ export default function HistoryReplayPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" onClick={() => router.push(`/history/${params.id}/report`)}>
+                                <MessageSquare className="w-4 h-4 mr-2" />
+                                教學省思
+                            </Button>
                             <Button variant="outline" size="sm">
                                 <Download className="w-4 h-4 mr-2" />
-                                匯出含標註報告
+                                匯出報告
                             </Button>
                         </div>
                     </div>
