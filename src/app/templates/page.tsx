@@ -53,6 +53,28 @@ const agentTemplates = [
         createdAt: '2024-02-10',
         preview: 'You are a friendly English conversation partner. Help students practice speaking naturally.',
     },
+    {
+        id: 'tpl-agent-004',
+        name: '歷史情境模擬者',
+        description: '扮演歷史人物，讓學生透過對話身歷其境，了解歷史背景。',
+        author: '系統預設',
+        isSystem: true,
+        tags: ['歷史', '角色扮演', '社會'],
+        usageCount: 210,
+        createdAt: '2024-01-20',
+        preview: '你將扮演指定的歷史人物，用第一人稱視角回答學生問題，堅持當時的價值觀與知識背景。',
+    },
+    {
+        id: 'tpl-agent-005',
+        name: '程式碼審查專家',
+        description: '協助學生檢查程式碼邏輯、風格與安全性，並給予具體建議。',
+        author: '張教授',
+        isSystem: false,
+        tags: ['程式', 'Code Review', '資訊'],
+        usageCount: 76,
+        createdAt: '2024-02-28',
+        preview: '你是資深的軟體工程師，請針對學生的程式碼進行 Code Review，指出潛在錯誤與優化空間。',
+    },
 ];
 
 const workflowTemplates = [
@@ -89,6 +111,28 @@ const workflowTemplates = [
         createdAt: '2024-03-01',
         nodeCount: 12,
     },
+    {
+        id: 'tpl-wf-004',
+        name: 'PBL 專題導向流程',
+        description: '引導學生從問題定義、資料蒐集到方案提出的完整專題學習流程。',
+        author: '系統預設',
+        isSystem: true,
+        tags: ['PBL', '專題', '探究'],
+        usageCount: 112,
+        createdAt: '2024-01-25',
+        nodeCount: 15,
+    },
+    {
+        id: 'tpl-wf-005',
+        name: '辯論比賽流程',
+        description: '包含正方、反方 AI 與裁判 AI 的標準辯論流程控制。',
+        author: 'DebateClub',
+        isSystem: false,
+        tags: ['辯論', '思辨', '多人'],
+        usageCount: 34,
+        createdAt: '2024-03-10',
+        nodeCount: 9,
+    },
 ];
 
 type TabType = 'agent' | 'workflow';
@@ -116,6 +160,18 @@ export default function TemplatesPage() {
         return matchesFilter && matchesSearch;
     });
 
+    const handleUseTemplate = (templateId: string, templateName: string, type: TabType) => {
+        const confirmMsg = `確定要使用「${templateName}」這個${type === 'agent' ? '代理人' : '工作流'}模板嗎？\n這將會建立一個新的副本。`;
+        if (confirm(confirmMsg)) {
+            // Mock API call
+            console.log(`Using template: ${templateId} (${type})`);
+            const targetUrl = type === 'agent' ? '/agents/new' : '/builder/new';
+            // In a real app we would pass the template ID, here we just mock the redirect
+            alert(`已建立副本！正在導向至編輯頁面...`);
+            // router.push(`${targetUrl}?template=${templateId}`);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Header */}
@@ -142,8 +198,8 @@ export default function TemplatesPage() {
                         <button
                             onClick={() => setActiveTab('agent')}
                             className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md transition-colors ${activeTab === 'agent'
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-600 hover:text-slate-900'
+                                ? 'bg-white text-slate-900 shadow-sm'
+                                : 'text-slate-600 hover:text-slate-900'
                                 }`}
                         >
                             <Bot className="w-4 h-4" />
@@ -152,8 +208,8 @@ export default function TemplatesPage() {
                         <button
                             onClick={() => setActiveTab('workflow')}
                             className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md transition-colors ${activeTab === 'workflow'
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-600 hover:text-slate-900'
+                                ? 'bg-white text-slate-900 shadow-sm'
+                                : 'text-slate-600 hover:text-slate-900'
                                 }`}
                         >
                             <GitBranch className="w-4 h-4" />
@@ -196,6 +252,7 @@ export default function TemplatesPage() {
                                 key={template.id}
                                 template={template}
                                 type={activeTab}
+                                onUse={() => handleUseTemplate(template.id, template.name, activeTab)}
                             />
                         ))}
                     </div>
@@ -209,12 +266,14 @@ export default function TemplatesPage() {
 function TemplateCard({
     template,
     type,
+    onUse,
 }: {
     template: (typeof agentTemplates)[0] | (typeof workflowTemplates)[0];
     type: TabType;
+    onUse: () => void;
 }) {
     return (
-        <div className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all group">
+        <div className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all group flex flex-col h-full">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -240,7 +299,7 @@ function TemplateCard({
             </div>
 
             {/* Description */}
-            <p className="text-sm text-slate-600 line-clamp-2 mb-4">
+            <p className="text-sm text-slate-600 line-clamp-2 mb-4 flex-1">
                 {template.description}
             </p>
 
@@ -258,21 +317,31 @@ function TemplateCard({
             </div>
 
             {/* Stats */}
-            <div className="flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-slate-100 mt-auto">
                 <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1">
                         <Copy className="w-3 h-3" />
-                        {template.usageCount} 次使用
+                        {template.usageCount}
                     </span>
                     <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {template.createdAt}
                     </span>
                 </div>
-                <Button variant="ghost" size="sm" className="gap-1 text-blue-600 hover:text-blue-700">
-                    <Eye className="w-3 h-3" />
-                    預覽
-                </Button>
+                <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" className="gap-1 h-8 px-2 text-slate-500">
+                        <Eye className="w-3 h-3" />
+                        預覽
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="secondary"
+                        className="gap-1 h-8 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none"
+                        onClick={onUse}
+                    >
+                        使用
+                    </Button>
+                </div>
             </div>
         </div>
     );
