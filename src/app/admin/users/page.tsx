@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
     Users,
     Search,
     MoreHorizontal,
+    Download,
+    Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,12 +20,67 @@ const users = MockDataService.getUsers();
 
 export default function UsersPage() {
     const [searchTerm, setSearchTerm] = useState('');
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const filteredUsers = users.filter(
         (u) =>
             u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             u.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Export users to CSV
+    const handleExportUsers = () => {
+        const headers = ['ID', '姓名', 'Email', '角色', '狀態', 'Token用量', '最後登入'];
+        const csvRows = [
+            headers.join(','),
+            ...filteredUsers.map(user => [
+                user.id,
+                user.name,
+                user.email,
+                user.role,
+                user.status,
+                user.usage.tokens,
+                user.lastLogin,
+            ].join(','))
+        ];
+
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // Import users from CSV
+    const handleImportUsers = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const csvText = event.target?.result as string;
+            const lines = csvText.split('\n').filter(line => line.trim());
+
+            // Skip header row
+            const dataRows = lines.slice(1);
+            const importedUsers = dataRows.map(row => {
+                const [name, email, role] = row.split(',').map(s => s.trim());
+                return { name, email, role };
+            });
+
+            console.log('[Mock] Imported users:', importedUsers);
+            alert(`成功匯入 ${importedUsers.length} 位使用者（Mock）\n\n格式: 姓名,Email,角色`);
+        };
+        reader.readAsText(file);
+
+        // Reset file input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -53,10 +110,34 @@ export default function UsersPage() {
                                 className="pl-9 bg-white"
                             />
                         </div>
-                        <Button className="bg-blue-600 hover:bg-blue-700">
-                            <Users className="w-4 h-4 mr-2" />
-                            新增使用者
-                        </Button>
+                        <div className="flex gap-2">
+                            {/* Hidden file input for import */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".csv"
+                                onChange={handleImportUsers}
+                                className="hidden"
+                            />
+                            <Button
+                                variant="outline"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Upload className="w-4 h-4 mr-2" />
+                                匯入
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={handleExportUsers}
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                匯出
+                            </Button>
+                            <Button className="bg-blue-600 hover:bg-blue-700">
+                                <Users className="w-4 h-4 mr-2" />
+                                新增使用者
+                            </Button>
+                        </div>
                     </div>
 
                     <Card>
