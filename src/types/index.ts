@@ -2,6 +2,13 @@
 // TeamTutor Core Type Definitions
 // =============================================================================
 
+// Re-export from sub-modules
+export * from './tool';
+export * from './user';
+export * from './history';
+export * from './template';
+export * from './api';
+
 export type ParticipantRole = 'user' | 'teacher' | 'student' | 'assistant';
 export type ParticipantStatus = 'active' | 'thinking' | 'idle';
 export type CommunicationStyle = 'friendly' | 'professional' | 'socratic' | 'casual';

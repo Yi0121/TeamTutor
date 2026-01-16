@@ -12,139 +12,36 @@ import type {
     LLMModel,
     CommunicationStyleOption,
     DashboardStats,
+    // Re-exported types from sub-modules
+    Tool,
+    ToolLog,
+    SessionHistory,
+    SessionEvent,
+    User,
+    SystemStats,
+    Alert,
+    PopularAgent,
+    Analytics,
+    LeaderboardStudent,
+    AgentTemplate,
+    WorkflowTemplate,
 } from '@/types';
 
-// =============================================================================
-// Type Definitions for Mock Data
-// =============================================================================
-
-export interface Tool {
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    category: string;
-    status: 'active' | 'inactive';
-    callCount: number;
-    lastUsed: string;
-    parameters?: Record<string, unknown>;
-}
-
-export interface ToolLog {
-    id: string;
-    toolId: string;
-    timestamp: string;
-    input: Record<string, unknown>;
-    output: string;
-    duration: number;
-    status: 'success' | 'error';
-}
-
-export interface SessionHistory {
-    id: string;
-    title: string;
-    date: string;
-    duration: string;
-    participants: string[];
-    messageCount: number;
-    events: SessionEvent[];
-}
-
-export interface SessionEvent {
-    time: string;
-    type: string;
-    sender?: string;
-    senderId?: string;
-    preview?: string;
-    tool?: string;
-    description?: string;
-    content?: string;
-}
-
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    status: 'active' | 'inactive';
-    lastLogin: string;
-    usage: {
-        tokens: number;
-        sessions: number;
-    };
-}
-
-export interface SystemStats {
-    totalUsers: number;
-    activeUsers: number;
-    totalSessions: number;
-    totalTokens: number;
-    serverStatus: 'healthy' | 'degraded' | 'down';
-    vectorDbStatus: 'healthy' | 'degraded' | 'down';
-    errorRate: number;
-    apiLatency: number;
-}
-
-export interface Alert {
-    id: string;
-    type: 'warning' | 'error' | 'info';
-    message: string;
-    time: string;
-}
-
-export interface PopularAgent {
-    id: string;
-    name: string;
-    usageCount: number;
-    rating: number;
-}
-
-export interface Analytics {
-    usageByModel: { modelId: string; name: string; tokens: number; cost: number }[];
-    usageByUser: { userId: string; name: string; role: string; sessions: number; tokens: number }[];
-    hourlyActivity: { hour: string; users: number }[];
-    studentLeaderboard?: LeaderboardStudent[];
-}
-
-export interface LeaderboardStudent {
-    rank: number;
-    id: string;
-    name: string;
-    avatar: string;
-    class: string;
-    score: number;
-    sessions: number;
-    streak: number;
-    badges: string[];
-}
-
-// =============================================================================
-// Agent Template Types
-// =============================================================================
-
-export interface AgentTemplate {
-    id: string;
-    name: string;
-    description: string;
-    author: string;
-    isSystem: boolean;
-    tags: string[];
-    usageCount: number;
-    createdAt: string;
-    preview: string;
-}
-
-export interface WorkflowTemplate {
-    id: string;
-    name: string;
-    description: string;
-    author: string;
-    isSystem: boolean;
-    tags: string[];
-    usageCount: number;
-    createdAt: string;
-    nodeCount: number;
-}
+// Re-export types for backward compatibility
+export type {
+    Tool,
+    ToolLog,
+    SessionHistory,
+    SessionEvent,
+    User,
+    SystemStats,
+    Alert,
+    PopularAgent,
+    Analytics,
+    LeaderboardStudent,
+    AgentTemplate,
+    WorkflowTemplate,
+};
 
 // =============================================================================
 // Template Mock Data
