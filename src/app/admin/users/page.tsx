@@ -104,7 +104,7 @@ export default function UsersPage() {
                                                 <Badge
                                                     variant="outline"
                                                     className={
-                                                        user.role === 'admin'
+                                                        user.role === 'super_admin' || user.role === 'school_admin'
                                                             ? 'bg-purple-50 text-purple-700 border-purple-200'
                                                             : user.role === 'teacher'
                                                                 ? 'bg-blue-50 text-blue-700 border-blue-200'

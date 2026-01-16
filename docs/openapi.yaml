@@ -1,0 +1,512 @@
+openapi: 3.0.3
+info:
+  title: TeamTutor API
+  description: |
+    TeamTutor 智慧虛擬課堂後端 API 規格。
+    此文件為前後端協商用的草稿版本。
+  version: 0.1.0
+  contact:
+    name: TeamTutor Dev Team
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local Development
+  - url: https://api.teamtutor.example.com
+    description: Production
+
+tags:
+  - name: Agents
+    description: AI 代理人管理
+  - name: Knowledge Bases
+    description: RAG 知識庫管理
+  - name: Sessions
+    description: 對話 Session 管理
+  - name: Users
+    description: 使用者管理
+  - name: Tools
+    description: MCP 工具管理
+  - name: Dashboard
+    description: 儀表板數據
+
+paths:
+  # ==========================================================================
+  # Agents
+  # ==========================================================================
+  /agents:
+    get:
+      tags: [Agents]
+      summary: 取得代理人列表
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: 篩選特定使用者的代理人
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentConfig'
+    post:
+      tags: [Agents]
+      summary: 建立新代理人
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAgentRequest'
+      responses:
+        '201':
+          description: 建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfig'
+
+  /agents/{id}:
+    get:
+      tags: [Agents]
+      summary: 取得單一代理人
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfig'
+        '404':
+          description: 找不到資源
+    put:
+      tags: [Agents]
+      summary: 更新代理人
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAgentRequest'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Agents]
+      summary: 刪除代理人
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 刪除成功
+
+  # ==========================================================================
+  # Knowledge Bases
+  # ==========================================================================
+  /knowledge:
+    get:
+      tags: [Knowledge Bases]
+      summary: 取得知識庫列表
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeBase'
+    post:
+      tags: [Knowledge Bases]
+      summary: 建立新知識庫
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateKnowledgeBaseRequest'
+      responses:
+        '201':
+          description: 建立成功
+
+  /knowledge/{id}:
+    get:
+      tags: [Knowledge Bases]
+      summary: 取得單一知識庫
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [Knowledge Bases]
+      summary: 更新知識庫
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Knowledge Bases]
+      summary: 刪除知識庫
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 刪除成功
+
+  # ==========================================================================
+  # Sessions
+  # ==========================================================================
+  /sessions:
+    get:
+      tags: [Sessions]
+      summary: 取得 Session 列表
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [Sessions]
+      summary: 建立新 Session
+      responses:
+        '201':
+          description: 建立成功
+
+  /sessions/{id}:
+    get:
+      tags: [Sessions]
+      summary: 取得單一 Session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [Sessions]
+      summary: 更新 Session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Sessions]
+      summary: 刪除 Session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 刪除成功
+
+  # ==========================================================================
+  # Users
+  # ==========================================================================
+  /users:
+    get:
+      tags: [Users]
+      summary: 取得使用者列表
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [Users]
+      summary: 建立新使用者
+      responses:
+        '201':
+          description: 建立成功
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: 取得單一使用者
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [Users]
+      summary: 更新使用者
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Users]
+      summary: 刪除使用者
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 刪除成功
+
+  # ==========================================================================
+  # Tools
+  # ==========================================================================
+  /tools:
+    get:
+      tags: [Tools]
+      summary: 取得工具列表
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [Tools]
+      summary: 建立新工具
+      responses:
+        '201':
+          description: 建立成功
+
+  /tools/{id}:
+    get:
+      tags: [Tools]
+      summary: 取得單一工具
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [Tools]
+      summary: 更新工具
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Tools]
+      summary: 刪除工具
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 刪除成功
+
+# ==========================================================================
+# Components
+# ==========================================================================
+components:
+  schemas:
+    AgentConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        ownerId:
+          type: string
+        isSystem:
+          type: boolean
+        visibility:
+          type: string
+          enum: [private, public, school]
+        name:
+          type: string
+        description:
+          type: string
+        avatar:
+          type: string
+        baseModel:
+          type: string
+        systemPrompt:
+          type: string
+        knowledgeLevel:
+          type: integer
+          minimum: 1
+          maximum: 10
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 1
+        communicationStyle:
+          type: string
+          enum: [friendly, professional, socratic, casual]
+        ragKnowledgeBaseIds:
+          type: array
+          items:
+            type: string
+        suggestedQuestions:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateAgentRequest:
+      type: object
+      required:
+        - name
+        - baseModel
+        - systemPrompt
+        - knowledgeLevel
+        - temperature
+        - communicationStyle
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        avatar:
+          type: string
+        baseModel:
+          type: string
+        systemPrompt:
+          type: string
+        knowledgeLevel:
+          type: integer
+        temperature:
+          type: number
+        communicationStyle:
+          type: string
+        ragKnowledgeBaseIds:
+          type: array
+          items:
+            type: string
+        visibility:
+          type: string
+          enum: [private, public, school]
+
+    UpdateAgentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        avatar:
+          type: string
+        baseModel:
+          type: string
+        systemPrompt:
+          type: string
+        knowledgeLevel:
+          type: integer
+        temperature:
+          type: number
+        communicationStyle:
+          type: string
+        ragKnowledgeBaseIds:
+          type: array
+          items:
+            type: string
+        visibility:
+          type: string
+          enum: [private, public, school]
+
+    KnowledgeBase:
+      type: object
+      properties:
+        id:
+          type: string
+        ownerId:
+          type: string
+        allowedRoles:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        documentCount:
+          type: integer
+        chunkCount:
+          type: integer
+        lastUpdated:
+          type: string
+          format: date-time
+
+    CreateKnowledgeBaseRequest:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        allowedRoles:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
