@@ -88,6 +88,45 @@ export default function AgentEditPage() {
         (initialAgent?.suggestedQuestions || []).map(q => ({ displayText: q, actualPrompt: q }))
     );
 
+    // Avatar generation state
+    const [showAvatarModal, setShowAvatarModal] = useState(false);
+    const [avatarPrompt, setAvatarPrompt] = useState('');
+    const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+    const avatarInputRef = useState<HTMLInputElement | null>(null);
+
+    const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && agent) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target?.result as string;
+                setAgent({ ...agent, avatar: dataUrl });
+                setShowAvatarModal(false);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleGenerateAvatar = async () => {
+        if (!avatarPrompt.trim() || !agent) return;
+
+        setIsGeneratingAvatar(true);
+
+        // Mock DALL-E API call - in production, this would call your backend
+        // which then calls OpenAI's DALL-E API
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Mock response - in production this would be the actual generated image URL
+        const mockAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarPrompt)}`;
+
+        setAgent({ ...agent, avatar: mockAvatarUrl });
+        setIsGeneratingAvatar(false);
+        setShowAvatarModal(false);
+        setAvatarPrompt('');
+
+        console.log('[Mock] DALL-E would generate avatar with prompt:', avatarPrompt);
+    };
+
     if (!agent) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -185,7 +224,7 @@ export default function AgentEditPage() {
                                     {agent.name.charAt(0)}
                                 </AvatarFallback>
                             </Avatar>
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" onClick={() => setShowAvatarModal(true)}>
                                 更換頭像
                             </Button>
                         </div>
@@ -613,6 +652,91 @@ export default function AgentEditPage() {
                                 儲存模板
                             </Button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Avatar Generation Modal */}
+            {showAvatarModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl w-full max-w-md mx-4 p-6">
+                        <h3 className="text-lg font-semibold mb-4">更換頭像</h3>
+
+                        {/* Current Avatar Preview */}
+                        <div className="flex justify-center mb-6">
+                            <Avatar className="w-24 h-24 ring-4 ring-slate-100">
+                                <AvatarImage src={agent.avatar} alt={agent.name} />
+                                <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white text-2xl">
+                                    {agent.name.charAt(0)}
+                                </AvatarFallback>
+                            </Avatar>
+                        </div>
+
+                        {/* Upload Option */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                上傳圖片
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAvatarUpload}
+                                className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                        </div>
+
+                        {/* Divider */}
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-slate-200"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-slate-500">或</span>
+                            </div>
+                        </div>
+
+                        {/* AI Generation Option */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <Sparkles className="w-4 h-4 inline mr-1 text-amber-500" />
+                                AI 生成頭像
+                            </label>
+                            <Textarea
+                                value={avatarPrompt}
+                                onChange={(e) => setAvatarPrompt(e.target.value)}
+                                placeholder="描述你想要的頭像，例如：友善的數學老師，戴眼鏡，微笑..."
+                                rows={3}
+                                className="mb-3"
+                            />
+                            <Button
+                                onClick={handleGenerateAvatar}
+                                disabled={!avatarPrompt.trim() || isGeneratingAvatar}
+                                className="w-full"
+                            >
+                                {isGeneratingAvatar ? (
+                                    <>
+                                        <span className="animate-spin mr-2">⏳</span>
+                                        生成中...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-4 h-4 mr-2" />
+                                        生成頭像
+                                    </>
+                                )}
+                            </Button>
+                            <p className="text-xs text-slate-400 mt-2">
+                                使用 DALL-E 生成 AI 頭像（Mock 模式）
+                            </p>
+                        </div>
+
+                        <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => setShowAvatarModal(false)}
+                        >
+                            取消
+                        </Button>
                     </div>
                 </div>
             )}
