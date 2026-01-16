@@ -1,0 +1,16 @@
+'use client';
+
+import { type ReactNode } from 'react';
+import { AuthProvider } from '@/lib/auth';
+
+interface ProvidersProps {
+    children: ReactNode;
+}
+
+export function Providers({ children }: ProvidersProps) {
+    return (
+        <AuthProvider defaultRole="teacher">
+            {children}
+        </AuthProvider>
+    );
+}
