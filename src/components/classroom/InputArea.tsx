@@ -21,6 +21,64 @@ export function InputArea({ onSend, disabled = false }: InputAreaProps) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Voice input state
+    const [isListening, setIsListening] = useState(false);
+    const [speechSupported, setSpeechSupported] = useState(false);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+    // Check for Web Speech API support
+    useEffect(() => {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            setSpeechSupported(true);
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'zh-TW';
+
+            recognition.onresult = (event: SpeechRecognitionEvent) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                if (finalTranscript) {
+                    setMessage(prev => prev + finalTranscript);
+                }
+            };
+
+            recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+                console.error('Speech recognition error:', event.error);
+                setIsListening(false);
+            };
+
+            recognition.onend = () => {
+                setIsListening(false);
+            };
+
+            recognitionRef.current = recognition;
+        }
+    }, []);
+
+    const toggleVoiceInput = () => {
+        if (!recognitionRef.current) return;
+
+        if (isListening) {
+            recognitionRef.current.stop();
+            setIsListening(false);
+        } else {
+            recognitionRef.current.start();
+            setIsListening(true);
+        }
+    };
+
     // Auto-resize textarea
     useEffect(() => {
         const textarea = textareaRef.current;
@@ -182,9 +240,13 @@ export function InputArea({ onSend, disabled = false }: InputAreaProps) {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 text-slate-500 hover:text-slate-700"
-                    title="語音輸入 (即將推出)"
-                    disabled
+                    className={`shrink-0 transition-colors ${isListening
+                            ? 'text-red-500 bg-red-50 hover:bg-red-100 animate-pulse'
+                            : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                    title={speechSupported ? `語音輸入${isListening ? ' (錄音中...)' : ''}` : '您的瀏覽器不支援語音輸入'}
+                    disabled={!speechSupported || disabled}
+                    onClick={toggleVoiceInput}
                 >
                     <Mic className="w-5 h-5" />
                 </Button>
@@ -205,7 +267,7 @@ export function InputArea({ onSend, disabled = false }: InputAreaProps) {
             <p className="text-xs text-slate-400 mt-2 text-center">
                 按 Enter 傳送 · Shift + Enter 換行 · 支援 Markdown 格式
             </p>
-        </div>
+        </div >
     );
 }
 

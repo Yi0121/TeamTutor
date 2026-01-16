@@ -10,6 +10,7 @@ import {
     Copy,
     Check,
     Eye,
+    X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,40 @@ export default function EmbedSettingsPage() {
     const [primaryColor, setPrimaryColor] = useState('#3b82f6');
     const [allowedDomains, setAllowedDomains] = useState('example.com\nlocalhost');
     const [copied, setCopied] = useState(false);
+
+    // Domain whitelist state
+    const [domainList, setDomainList] = useState<string[]>(['example.com', 'localhost']);
+    const [newDomain, setNewDomain] = useState('');
+    const [domainError, setDomainError] = useState('');
+
+    // Domain validation regex
+    const validateDomain = (domain: string): boolean => {
+        const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$|^localhost$/;
+        return domainRegex.test(domain);
+    };
+
+    const handleAddDomain = () => {
+        const domain = newDomain.trim().toLowerCase();
+        if (!domain) return;
+
+        if (!validateDomain(domain)) {
+            setDomainError('無效的網域格式，請輸入正確的網域名稱 (例: example.com)');
+            return;
+        }
+
+        if (domainList.includes(domain)) {
+            setDomainError('此網域已在白名單中');
+            return;
+        }
+
+        setDomainList(prev => [...prev, domain]);
+        setNewDomain('');
+        setDomainError('');
+    };
+
+    const handleRemoveDomain = (index: number) => {
+        setDomainList(prev => prev.filter((_, i) => i !== index));
+    };
 
     const generateEmbedCode = () => {
         if (embedType === 'iframe') {
@@ -91,8 +126,8 @@ export default function EmbedSettingsPage() {
                                     <button
                                         onClick={() => setEmbedType('iframe')}
                                         className={`p-4 border-2 rounded-xl text-left transition-all ${embedType === 'iframe'
-                                                ? 'border-blue-500 bg-blue-50'
-                                                : 'border-slate-200 hover:border-slate-300'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-slate-200 hover:border-slate-300'
                                             }`}
                                     >
                                         <Code className="w-8 h-8 text-blue-500 mb-2" />
@@ -102,8 +137,8 @@ export default function EmbedSettingsPage() {
                                     <button
                                         onClick={() => setEmbedType('bubble')}
                                         className={`p-4 border-2 rounded-xl text-left transition-all ${embedType === 'bubble'
-                                                ? 'border-blue-500 bg-blue-50'
-                                                : 'border-slate-200 hover:border-slate-300'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-slate-200 hover:border-slate-300'
                                             }`}
                                     >
                                         <MessageCircle className="w-8 h-8 text-purple-500 mb-2" />
@@ -161,23 +196,82 @@ export default function EmbedSettingsPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Allowed Domains */}
+                        {/* Allowed Domains with Validation */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Globe className="w-5 h-5" />
-                                    允許的網域
+                                    允許的網域 (Referrer 白名單)
                                 </CardTitle>
-                                <CardDescription>每行一個網域，限制嵌入來源</CardDescription>
+                                <CardDescription>
+                                    僅允許來自這些網域的嵌入請求
+                                </CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <textarea
-                                    value={allowedDomains}
-                                    onChange={(e) => setAllowedDomains(e.target.value)}
-                                    rows={4}
-                                    className="w-full p-3 border rounded-lg font-mono text-sm"
-                                    placeholder="example.com"
-                                />
+                            <CardContent className="space-y-4">
+                                {/* Domain Input */}
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={newDomain}
+                                        onChange={(e) => setNewDomain(e.target.value)}
+                                        placeholder="example.com"
+                                        className={`flex-1 ${domainError ? 'border-red-500' : ''}`}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddDomain()}
+                                    />
+                                    <Button onClick={handleAddDomain} disabled={!newDomain.trim()}>
+                                        新增
+                                    </Button>
+                                </div>
+                                {domainError && (
+                                    <p className="text-sm text-red-500">{domainError}</p>
+                                )}
+
+                                {/* Domain List */}
+                                <div className="space-y-2 max-h-48 overflow-auto">
+                                    {domainList.map((domain, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg group"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${validateDomain(domain) ? 'bg-green-500' : 'bg-red-500'
+                                                    }`} />
+                                                <code className="text-sm">{domain}</code>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {validateDomain(domain) ? (
+                                                    <Badge variant="outline" className="bg-green-50 text-green-700 text-xs">有效</Badge>
+                                                ) : (
+                                                    <Badge variant="outline" className="bg-red-50 text-red-700 text-xs">無效格式</Badge>
+                                                )}
+                                                <button
+                                                    onClick={() => handleRemoveDomain(index)}
+                                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-200 rounded transition-opacity"
+                                                >
+                                                    <X className="w-4 h-4 text-slate-500" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {domainList.length === 0 && (
+                                        <p className="text-sm text-slate-400 text-center py-4">
+                                            尚未設定任何網域，將允許所有來源嵌入
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Stats */}
+                                <div className="flex items-center justify-between text-sm text-slate-500 pt-2 border-t">
+                                    <span>{domainList.filter(d => validateDomain(d)).length} 個有效網域</span>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            alert('設定已儲存！(Mock)');
+                                        }}
+                                    >
+                                        儲存設定
+                                    </Button>
+                                </div>
                             </CardContent>
                         </Card>
 

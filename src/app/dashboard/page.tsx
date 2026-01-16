@@ -33,6 +33,7 @@ import {
     AlertTriangle,
     Bot,
     Star,
+    Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -78,8 +79,21 @@ interface PopularAgent {
     rating: number;
 }
 
+interface LeaderboardStudent {
+    rank: number;
+    id: string;
+    name: string;
+    avatar: string;
+    class: string;
+    score: number;
+    sessions: number;
+    streak: number;
+    badges: string[];
+}
+
 const alertsData = (mockData as any).alerts as Alert[];
 const popularAgentsData = (mockData as any).popularAgents as PopularAgent[];
+const leaderboardData = ((mockData as any).analytics?.studentLeaderboard || []) as LeaderboardStudent[];
 
 // Default layout for widgets
 const defaultLayout = [
@@ -91,7 +105,8 @@ const defaultLayout = [
     { i: 'radar-chart', x: 6, y: 2, w: 6, h: 5, minW: 4, minH: 4 },
     { i: 'alerts', x: 0, y: 7, w: 4, h: 4, minW: 3, minH: 3 },
     { i: 'popular-agents', x: 4, y: 7, w: 4, h: 4, minW: 3, minH: 3 },
-    { i: 'recent-sessions', x: 8, y: 7, w: 4, h: 4, minW: 4, minH: 3 },
+    { i: 'leaderboard', x: 8, y: 7, w: 4, h: 4, minW: 3, minH: 3 },
+    { i: 'recent-sessions', x: 0, y: 11, w: 12, h: 4, minW: 6, minH: 3 },
 ];
 
 export default function DashboardPage() {
@@ -336,6 +351,43 @@ export default function DashboardPage() {
                                         <div className="flex items-center gap-1 text-amber-500">
                                             <Star className="w-3 h-3 fill-current" />
                                             <span className="text-xs font-medium">{agent.rating}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Widget>
+                    </div>
+
+                    {/* Student Leaderboard Widget */}
+                    <div key="leaderboard">
+                        <Widget title="🏆 學生排行榜">
+                            <div className="space-y-2 overflow-auto h-full">
+                                {leaderboardData.slice(0, 5).map((student) => (
+                                    <div
+                                        key={student.id}
+                                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                                    >
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${student.rank === 1 ? 'bg-amber-400 text-white' :
+                                            student.rank === 2 ? 'bg-slate-400 text-white' :
+                                                student.rank === 3 ? 'bg-amber-600 text-white' :
+                                                    'bg-slate-200 text-slate-600'
+                                            }`}>
+                                            {student.rank}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-medium text-slate-900 truncate">{student.name}</span>
+                                                {student.streak >= 7 && (
+                                                    <span className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded-full flex items-center gap-0.5">
+                                                        🔥 {student.streak}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-slate-500">{student.class} · {student.sessions} 場學習</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-sm font-bold text-blue-600">{student.score.toLocaleString()}</div>
+                                            <div className="text-xs text-slate-400">積分</div>
                                         </div>
                                     </div>
                                 ))}

@@ -810,6 +810,72 @@
                 "hour": "23:00",
                 "users": 20
             }
+        ],
+        "studentLeaderboard": [
+            {
+                "rank": 1,
+                "id": "student-001",
+                "name": "張小華",
+                "avatar": "/avatars/student1.png",
+                "class": "三年一班",
+                "score": 2850,
+                "sessions": 45,
+                "streak": 12,
+                "badges": [
+                    "數學達人",
+                    "連續學習"
+                ]
+            },
+            {
+                "rank": 2,
+                "id": "student-002",
+                "name": "李美玲",
+                "avatar": "/avatars/student2.png",
+                "class": "三年二班",
+                "score": 2720,
+                "sessions": 42,
+                "streak": 8,
+                "badges": [
+                    "英語之星"
+                ]
+            },
+            {
+                "rank": 3,
+                "id": "student-003",
+                "name": "王大明",
+                "avatar": "/avatars/student3.png",
+                "class": "三年一班",
+                "score": 2580,
+                "sessions": 38,
+                "streak": 5,
+                "badges": [
+                    "科學探索家"
+                ]
+            },
+            {
+                "rank": 4,
+                "id": "student-004",
+                "name": "陳小芳",
+                "avatar": "/avatars/student4.png",
+                "class": "三年三班",
+                "score": 2450,
+                "sessions": 35,
+                "streak": 3,
+                "badges": []
+            },
+            {
+                "rank": 5,
+                "id": "student-005",
+                "name": "林志偉",
+                "avatar": "/avatars/student5.png",
+                "class": "三年二班",
+                "score": 2320,
+                "sessions": 32,
+                "streak": 7,
+                "badges": [
+                    "閱讀王"
+                ]
+            }
         ]
     }
 }
