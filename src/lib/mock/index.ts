@@ -297,16 +297,66 @@ export const MockDataService = {
     getSessionById: (id: string) => (id === mockData.session.id ? mockData.session : null),
 
     // Agents
-    getAgents: () => mockData.agents,
+    getAgents: (userId?: string) => {
+        if (!userId) return mockData.agents;
+        return mockData.agents.filter(agent =>
+            agent.isSystem ||
+            agent.visibility === 'public' ||
+            agent.ownerId === userId
+        );
+    },
     getAgentById: (id: string) => mockData.agents.find((a) => a.id === id) || null,
 
     // Knowledge Bases
-    getKnowledgeBases: () => mockData.knowledgeBases,
+    getKnowledgeBases: (userId?: string) => {
+        if (!userId) return mockData.knowledgeBases;
+        return mockData.knowledgeBases.filter(kb =>
+            kb.ownerId === userId ||
+            (kb.allowedRoles && kb.allowedRoles.includes('student')) // Simplified role check for now
+        );
+    },
     getKnowledgeBaseById: (id: string) =>
         mockData.knowledgeBases.find((kb) => kb.id === id) || null,
 
     // Dashboard
-    getDashboardStats: () => mockData.dashboardStats,
+    getDashboardStats: (role?: string) => {
+        const globalStats = mockData.dashboardStats;
+        if (role === 'student') {
+            // Return simulated student stats (subset of global or personalized)
+            return {
+                usage: {
+                    totalSessions: 12,
+                    totalMessages: 345,
+                    totalTokens: 15600,
+                    activeUsers: 1, // Only themselves
+                    averageSessionDuration: '15m',
+                    learningScore: 1250,
+                    studyStreak: 12,
+                    totalLearningHours: 8,
+                },
+                dailyUsage: globalStats.dailyUsage.map(d => ({
+                    date: d.date,
+                    sessions: Math.floor(d.sessions / 10), // Scale down
+                    messages: Math.floor(d.messages / 10),
+                    tokens: Math.floor(d.tokens / 10),
+                })),
+                abilityScores: {
+                    communication: 78,
+                    collaboration: 82,
+                    criticalThinking: 65,
+                    problemSolving: 70,
+                    creativity: 85,
+                },
+                recentSessions: globalStats.recentSessions.slice(0, 3).map((s, i) => ({
+                    ...s,
+                    title: `個人練習: ${s.title}`,
+                    participants: 1, // Just them + AI
+                })),
+            };
+        }
+        // Teacher / Admin sees full class stats
+        return globalStats;
+    },
 
     // LLM Models
     getLLMModels: () => mockData.llmModels,

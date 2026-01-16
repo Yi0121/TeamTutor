@@ -8,227 +8,139 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)
 
-**以多代理人與 RAG 技術建構適性化合作學習環境**
+**以多代理人 (Multi-Agent) 與 RAG 技術建構的適性化合作學習平台**
 
 </div>
 
 ---
 
-## 📖 專案概述
+## 📖 專案概述 (Project Overview)
 
-TeamTutor 是一個基於 **Multi-Agent** 與 **RAG (Retrieval-Augmented Generation)** 技術的智慧教育平台，旨在提供創新的數位學習環境。
+TeamTutor 是一個專為教育場景設計的 **Next.js** 全端應用程式。其核心架構圍繞著「虛擬課堂」概念，整合了 LLM (Large Language Module) 驅動的 AI 代理人網路，並透過 RAG (Retrieval-Augmented Generation) 技術綁定特定領域知識庫。
 
-### 核心功能
-
-- 🤖 **多代理人虛擬課堂** - AI 教師、AI 學伴與真人學生的三方互動
-- 📚 **RAG 知識庫** - 向量化文件檢索，降低 AI 幻覺
-- 🔧 **MCP 工具整合** - GeoGebra、程式碼執行、網頁搜尋等外部工具
-- 🎨 **視覺化情境編輯器** - 拖曳式 Workflow 設計
-- 📊 **學習歷程分析** - 事件溯源與可視化儀表板
+**對於開發者而言，本專案展示了以下現代前端架構實踐：**
+- **Hybrid Rendering**: 結合 Next.js App Router 的 Server Components 與 Client Components。
+- **Feature-First Architecture**: 依據功能模組 (Classroom, Agents, Analytics) 而非技術層分類的目錄結構。
+- **Centralized Data Layer**: 透過 Service Pattern 抽象化資料存取，目前由 `MockDataService` 模擬，便於未來替換為真實 API。
+- **Strict RBAC**: 嚴謹的角色權限控制系統 (Role-Based Access Control)。
 
 ---
 
-## 🚀 快速開始
+## 🏗️ 系統架構 (System Architecture)
+
+### 核心模組
+
+1.  **虛擬課堂引擎 (Classroom Engine)**: 
+    - 負責管理多代理人對話狀態。
+    - 整合 `MessageList`, `ToolCall`, `ContextPanel` 等即時互動組件。
+2.  **代理人編排 (Agent Orchestration)**:
+    - `AgentConfig`: 定義 Persona、System Prompt 與 知識庫綁定。
+    - `Builder`: 基於 React Flow 的視覺化工作流編輯器，用於設計複雜的對話邏輯。
+3.  **RAG 知識庫 (Knowledge Base)**:
+    - 管理向量化與非結構化文件，提供 AI 代理人上下文檢索能力。
+4.  **數據分析 (Analytics)**:
+    - 基於 Recharts 與 React-Grid-Layout 的可視化儀表板。
+
+### 狀態管理策略 (State Management Strategy)
+
+本專案採用 **分離式狀態管理** 策略，避免單一 Store 過度膨脹：
+
+| 狀態類型 | 解決方案 | 說明 | 關鍵檔案 |
+|---------|----------|------|---------|
+| **UI 狀態** | **Zustand** | 處理 Sidebar 開關、主題切換等純 UI 邏輯。 | `src/lib/store.ts` |
+| **用戶/權限** | **Context API** | 全域的使用者身份、角色與權限驗證。 | `src/lib/auth/AuthContext.tsx` |
+| **業務數據** | **Service / Hooks** | 頁面級別的數據獲取，目前由 `MockDataService` 提供。 | `src/lib/mock/index.ts` |
+| **表單狀態** | **Local State** | 組件內部的表單控制與驗證。 | 各頁面組件 |
+
+### 安全性與權限 (Security & RBAC)
+
+專案實作了嚴格的前端 RBAC：
+
+- **定義層**: `src/lib/auth/permissions.ts` 定義了 UserRole (身分) 與 Permission (權限) 的映射關係。
+- **邏輯層**: 提供 `canAccessRoute` 與 `hasPermission` 函式進行邏輯判斷。
+- **執行層**:
+    - **RouteGuard**: `src/components/auth/RouteGuard.tsx` 攔截路由跳轉，驗證頁面存取權。
+    - **Component Check**: 透過 `useAuth()` hook 在組件內部控制按鈕或區塊的顯示/隱藏。
+
+---
+
+## 📁 專案結構 (Project Structure)
+
+```bash
+src/
+├── app/                        # Next.js App Router (路由層)
+│   ├── layout.tsx              # Root Layout (整合 Providers & AppShell)
+│   ├── agents/                 # [Feature] AI 代理人管理
+│   ├── builder/                # [Feature] Workflow 編輯器
+│   ├── classroom/              # [Feature] 虛擬課堂核心
+│   ├── dashboard/              # [Feature] 數據儀表板
+│   ├── knowledge/              # [Feature] RAG 知識庫
+│   └── admin/                  # [Feature] 系統後台
+│
+├── components/                 # React 組件層
+│   ├── admin/                  # 後台專用組件
+│   ├── auth/                   # 認證相關 (RouteGuard)
+│   ├── builder/                # React Flow 相關組件
+│   ├── classroom/              # 聊天室相關組件
+│   ├── layout/                 # 布局組件 (AppShell, Sidebar)
+│   └── ui/                     # Shadcn/UI 基礎組件庫
+│
+├── lib/                        # 核心邏輯層
+│   ├── auth/                   # 認證與權限邏輯
+│   ├── mock/                   # Mock Data Service (統一數據源)
+│   └── store.ts                # Zustand UI Store
+│
+└── types/                      # TypeScript 型別定義
+    └── index.ts                # 核心資料模型 (User, Agent, Session...)
+```
+
+---
+
+## 🚀 快速開始 (Getting Started)
 
 ### 環境需求
-
 - Node.js 18.17+
 - npm / yarn / pnpm
 
-### 安裝與執行
+### 開發流程
 
-```bash
-# 複製專案
-git clone https://github.com/Yi0121/TeamTutor.git
-cd TeamTutor
+1. **安裝依賴**
+   ```bash
+   npm install
+   ```
 
-# 安裝依賴
-npm install
+2. **啟動開發伺服器**
+   ```bash
+   npm run dev
+   ```
+   瀏覽 [http://localhost:3000](http://localhost:3000)
 
-# 啟動開發伺服器
-npm run dev
-```
-
-開啟瀏覽器訪問 [http://localhost:3000](http://localhost:3000)
-
----
-
-## 📁 專案結構
-
-```
-src/
-├── app/                        # Next.js 16 App Router 頁面
-│   ├── page.tsx                # 首頁（導航入口）
-│   ├── layout.tsx              # Root Layout
-│   ├── globals.css             # 全域樣式
-│   │
-│   ├── admin/                  # 系統管理模組
-│   │   ├── page.tsx            # 管理儀表板
-│   │   ├── organization/       # 組織架構管理
-│   │   │   └── page.tsx
-│   │   └── quota/              # Token 配額管理
-│   │       └── page.tsx
-│   │
-│   ├── agents/                 # AI 代理人模組
-│   │   ├── page.tsx            # 代理人列表
-│   │   └── [id]/               # 代理人詳情/編輯
-│   │       └── page.tsx
-│   │
-│   ├── builder/                # Workflow 視覺化編輯器
-│   │   └── page.tsx
-│   │
-│   ├── classroom/              # 多代理人虛擬課堂
-│   │   └── [id]/               # 課堂對話頁
-│   │       ├── page.tsx
-│   │       └── layout.tsx
-│   │
-│   ├── dashboard/              # 學習儀表板
-│   │   ├── page.tsx            # 主儀表板（可拖曳 Widget）
-│   │   └── analytics/          # 進階分析
-│   │       └── page.tsx
-│   │
-│   ├── embed/                  # 嵌入設定
-│   │   └── page.tsx
-│   │
-│   ├── history/                # 學習歷程模組
-│   │   ├── page.tsx            # 歷程列表
-│   │   └── [id]/               # 歷程詳情
-│   │       ├── page.tsx        # 回放頁面
-│   │       └── report/         # 省思報告
-│   │           └── page.tsx
-│   │
-│   ├── knowledge/              # RAG 知識庫模組
-│   │   ├── page.tsx            # 知識庫列表
-│   │   └── [id]/               # 知識庫詳情
-│   │       └── page.tsx
-│   │
-│   ├── templates/              # 情境模板庫
-│   │   └── page.tsx
-│   │
-│   └── tools/                  # MCP 工具模組
-│       ├── page.tsx            # 工具列表
-│       └── [id]/               # 工具詳情
-│           └── page.tsx
-│
-├── components/                 # React 共用組件
-│   ├── Providers.tsx           # Context Providers 包裝
-│   ├── admin/                  # 管理後台組件
-│   │   └── BatchImportModal.tsx
-│   ├── auth/                   # 權限相關組件
-│   │   └── RoleSwitcher.tsx
-│   ├── builder/                # Workflow 編輯器組件
-│   │   ├── CanvasToolbar.tsx
-│   │   ├── NodePalette.tsx
-│   │   ├── PropertyPanel.tsx
-│   │   └── nodes/              # 自訂節點類型
-│   │       ├── AgentNode.tsx
-│   │       ├── TriggerNode.tsx
-│   │       ├── ConditionNode.tsx
-│   │       ├── ActionNode.tsx
-│   │       └── EndNode.tsx
-│   ├── classroom/              # 課堂相關組件
-│   │   ├── ChatInterface.tsx   # 主對話介面
-│   │   ├── MessageBubble.tsx   # 訊息氣泡
-│   │   ├── MessageList.tsx
-│   │   ├── InputArea.tsx       # 輸入區域
-│   │   ├── ParticipantsPanel.tsx
-│   │   ├── ContextPanel.tsx
-│   │   ├── ToolCallCard.tsx
-│   │   ├── AgentConfigDrawer.tsx
-│   │   └── ConversationStatusBar.tsx
-│   ├── history/                # 歷程回放組件
-│   │   └── PlaybackControls.tsx
-│   ├── tools/                  # 工具管理組件
-│   │   └── AddToolModal.tsx
-│   └── ui/                     # 基礎 UI 組件 (Radix-based)
-│       ├── accordion.tsx
-│       ├── avatar.tsx
-│       ├── badge.tsx
-│       ├── button.tsx
-│       ├── card.tsx
-│       ├── checkbox.tsx
-│       ├── dialog.tsx
-│       ├── input.tsx
-│       ├── latex-renderer.tsx
-│       ├── scroll-area.tsx
-│       ├── select.tsx
-│       ├── slider.tsx
-│       ├── tabs.tsx
-│       └── textarea.tsx
-│
-├── lib/                        # 工具函式與服務
-│   ├── api.ts                  # API 服務層 (Mock)
-│   ├── store.ts                # Zustand 狀態管理
-│   ├── utils.ts                # 通用工具函式
-│   └── auth/                   # RBAC 權限系統
-│       ├── index.ts            # 模組匯出
-│       ├── AuthContext.tsx     # 認證 Context
-│       ├── PermissionGuard.tsx # 權限守衛組件
-│       └── permissions.ts      # 角色權限定義
-│
-└── types/                      # TypeScript 型別定義
-    ├── index.ts                # 核心型別
-    ├── react-katex.d.ts        # KaTeX 型別補丁
-    └── speech-recognition.d.ts # Web Speech API 型別
-```
-
-### 目錄說明
-
-| 目錄 | 用途 |
-|------|------|
-| `app/` | Next.js 16 App Router，每個資料夾對應一個路由 |
-| `components/` | 可重用的 React 組件，依功能模組分類 |
-| `lib/` | 核心邏輯：API 呼叫、狀態管理、權限系統 |
-| `types/` | TypeScript 型別定義與第三方型別補丁 |
+3. **建置生產版本**
+   ```bash
+   npm run build
+   npm start
+   ```
 
 ---
 
-## 🛠️ 技術棧
+## 🛠️ 技術棧詳解 (Tech Stack)
 
-| 類別 | 技術 |
-|------|------|
-| **Framework** | Next.js 16 (App Router) |
-| **Language** | TypeScript 5 |
-| **Styling** | Tailwind CSS 4 + Shadcn/UI |
-| **Icons** | Lucide React |
-| **Flow Editor** | React Flow |
-| **Charts** | Recharts |
-| **Grid Layout** | react-grid-layout |
-| **Markdown** | react-markdown + rehype-katex |
-| **Code Highlight** | react-syntax-highlighter |
+| 類別 | 技術選型 | 選擇理由 |
+|------|----------|----------|
+| **Core** | Next.js 16 | 利用 App Router 與 Server Components 優化效能與 SEO。 |
+| **Language** | TypeScript 5 | 確保型別安全，減少 Runtime Error，提升維護性。 |
+| **Styling** | Tailwind CSS 4 | Utility-first CSS，配合 Shadcn/UI 快速建構一致性介面。 |
+| **Interaction** | React Flow | 強大的節點編輯庫，支援複雜的 Agent Workflow 設計。 |
+| **Visuals** | Lucide React | 輕量且風格統一的 SVG Icon 庫。 |
+| **Layout** | React Grid Layout | 提供 Dashboard 高度客製化的拖曳布局能力。 |
 
 ---
 
-## 📍 路由總覽
+## 📚 開發指南 (Contribution Guide)
 
-| 路由 | 說明 |
-|------|------|
-| `/` | 首頁 (Landing Page) |
-| `/classroom/[id]` | 多代理人對話教室 |
-| `/agents` | AI 代理人列表 |
-| `/agents/[id]` | 代理人設定編輯 |
-| `/builder` | 視覺化情境編輯器 |
-| `/knowledge` | RAG 知識庫列表 |
-| `/knowledge/[id]` | 知識庫詳情與設定 |
-| `/tools` | MCP 工具列表 |
-| `/tools/[id]` | 工具詳情與測試 |
-| `/dashboard` | 學習儀表板 (可拖曳 Widget) |
-| `/history` | 學習歷程列表 |
-| `/history/[id]` | 歷程回放與標註 |
-| `/templates` | 模板庫 (Agent/Workflow) |
-| `/embed` | 嵌入設定 (iframe/Bubble) |
-| `/admin` | 系統管理 |
-| `/admin/organization` | 組織架構管理 |
-
----
-
-## 🎓 應用場景
-
-### 1. 學生合作學習模式
-提供「理想學習團隊」，透過與 AI 學伴互動培養協作與批判思考能力。教師可設計認知衝突或「以教促學」策略。
-
-### 2. 師資生模擬實習模式
-提供虛擬實習場域，模擬不同特質的 AI 學生，供師資生練習教學策略，並支援歷程重播與自動生成教學分析報告。
+1.  **新增頁面**: 在 `src/app` 下建立對應資料夾。若需權限控制，請更新 `src/lib/auth/permissions.ts` 中的 `ROUTE_PERMISSIONS`。
+2.  **修改數據**: 所有 Mock 數據讀取 **必須** 透過 `src/lib/mock/index.ts` 中的 `MockDataService`，禁止直接 import JSON 檔案，以確保未來 API 遷移的順暢性。
+3.  **UI 組件**: 優先使用 `src/components/ui` 下的共用組件。若需新組件，請參考 Shadcn/UI 規範。
 
 ---
 

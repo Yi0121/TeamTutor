@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
@@ -34,13 +34,16 @@ import {
     Bot,
     Star,
     Trophy,
+    CheckCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import mockData, { type Alert, type PopularAgent, type LeaderboardStudent } from '@/lib/mock';
 import type { DashboardStats, DailyUsage, RecentSession } from '@/types';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { ROLE_DISPLAY_NAMES } from '@/lib/auth/permissions';
 
-const stats = mockData.getDashboardStats() as DashboardStats;
+// Don't fetch stats statically anymore
 const alertsData = mockData.getAlerts() as Alert[];
 const popularAgentsData = mockData.getPopularAgents() as PopularAgent[];
 const leaderboardData = (mockData.getAnalytics()?.studentLeaderboard || []) as LeaderboardStudent[];
@@ -53,20 +56,6 @@ const timeRanges = [
     { id: 'custom', label: '自訂範圍' },
 ];
 
-// Transform daily usage for chart
-const dailyData = stats.dailyUsage.map((d: DailyUsage) => ({
-    ...d,
-    date: d.date.split('-').slice(1).join('/'),
-}));
-
-// Transform ability scores for radar chart
-const abilityData = [
-    { ability: '溝通能力', score: stats.abilityScores.communication, fullMark: 100 },
-    { ability: '協作能力', score: stats.abilityScores.collaboration, fullMark: 100 },
-    { ability: '批判思考', score: stats.abilityScores.criticalThinking, fullMark: 100 },
-    { ability: '問題解決', score: stats.abilityScores.problemSolving, fullMark: 100 },
-    { ability: '創造力', score: stats.abilityScores.creativity, fullMark: 100 },
-];
 
 // Default layout for widgets
 const defaultLayout = [
@@ -82,10 +71,86 @@ const defaultLayout = [
     { i: 'recent-sessions', x: 0, y: 11, w: 12, h: 4, minW: 6, minH: 3 },
 ];
 
+// Student layout (Simplified)
+const studentLayout = [
+    { i: 'stat-1', x: 0, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
+    { i: 'stat-2', x: 3, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
+    { i: 'stat-3', x: 6, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
+    { i: 'stat-4', x: 9, y: 0, w: 3, h: 2, minW: 2, minH: 2 },
+    { i: 'leaderboard', x: 0, y: 2, w: 6, h: 5, minW: 3, minH: 3 },
+    { i: 'popular-agents', x: 6, y: 2, w: 6, h: 5, minW: 3, minH: 3 },
+    { i: 'recent-sessions', x: 0, y: 7, w: 12, h: 4, minW: 6, minH: 3 },
+];
+
+// Custom Legend Component
+const CustomLegend = ({ data }: { data: { name: string; color: string }[] }) => (
+    <div className="flex flex-wrap gap-4 justify-center mt-2">
+        {data.map((item) => (
+            <div key={item.name} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="text-sm text-slate-600">{item.name}</span>
+            </div>
+        ))}
+    </div>
+);
+
+const AXIS_TICK_STYLE = { fill: '#64748b', fontSize: 12 };
+const RADIUS_TICK_STYLE = { fill: '#64748b', fontSize: 10 };
+const TOOLTIP_STYLE = {
+    backgroundColor: 'white',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+};
+
 export default function DashboardPage() {
+    const { user, switchRole } = useAuth();
     const [selectedRange, setSelectedRange] = useState('7d');
     const [isExporting, setIsExporting] = useState(false);
     const [layout, setLayout] = useState(defaultLayout);
+
+    // Layout persistence ref
+    const layoutRef = useRef(layout);
+    layoutRef.current = layout;
+
+    // Guard against layout thrashing during role switch
+    const isRoleSwitchingRef = useRef(false);
+
+    // Update layout based on role
+    useEffect(() => {
+        isRoleSwitchingRef.current = true;
+        if (user?.role === 'student') {
+            setLayout(JSON.parse(JSON.stringify(studentLayout)));
+        } else {
+            setLayout(JSON.parse(JSON.stringify(defaultLayout)));
+        }
+
+        // Release lock after layout settles
+        const timer = setTimeout(() => {
+            isRoleSwitchingRef.current = false;
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [user?.role]);
+
+    // Dynamic stats based on role
+    const stats = useMemo<DashboardStats>(() =>
+        mockData.getDashboardStats(user?.role),
+        [user?.role]);
+
+    // Transform daily usage for chart
+    const dailyData = useMemo(() => stats.dailyUsage.map((d: DailyUsage) => ({
+        ...d,
+        date: d.date.split('-').slice(1).join('/'),
+    })), [stats.dailyUsage]);
+
+    // Transform ability scores for radar chart
+    const abilityData = useMemo(() => [
+        { ability: '溝通能力', score: stats.abilityScores.communication, fullMark: 100 },
+        { ability: '協作能力', score: stats.abilityScores.collaboration, fullMark: 100 },
+        { ability: '批判思考', score: stats.abilityScores.criticalThinking, fullMark: 100 },
+        { ability: '問題解決', score: stats.abilityScores.problemSolving, fullMark: 100 },
+        { ability: '創造力', score: stats.abilityScores.creativity, fullMark: 100 },
+    ], [stats.abilityScores]);
 
     const handleExport = () => {
         setIsExporting(true);
@@ -108,14 +173,17 @@ export default function DashboardPage() {
     };
 
     const onLayoutChange = useCallback((newLayout: any) => {
-        setLayout(newLayout);
-        // TODO: Persist layout to localStorage or backend
-        localStorage.setItem('dashboard-layout', JSON.stringify(newLayout));
+        // Ignore layout changes during role transition
+        if (isRoleSwitchingRef.current) return;
+
+        // Prevent infinite loop by checking if layout actually changed
+        if (JSON.stringify(layoutRef.current) !== JSON.stringify(newLayout)) {
+            setLayout(newLayout);
+        }
     }, []);
 
     const resetLayout = () => {
-        setLayout(defaultLayout);
-        localStorage.removeItem('dashboard-layout');
+        setLayout(user?.role === 'student' ? JSON.parse(JSON.stringify(studentLayout)) : JSON.parse(JSON.stringify(defaultLayout)));
     };
 
     const Grid = GridLayout as unknown as React.ComponentType<any>;
@@ -131,6 +199,22 @@ export default function DashboardPage() {
                             <p className="text-slate-500 mt-1">查看學習數據與分析 · 可拖曳調整版面</p>
                         </div>
                         <div className="flex items-center gap-3">
+                            {/* Role Switcher (Demo Only) */}
+                            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 mr-2">
+                                {(['student', 'teacher', 'school_admin', 'super_admin'] as const).map((r) => (
+                                    <button
+                                        key={r}
+                                        onClick={() => switchRole(r)}
+                                        className={`px-3 py-1.5 text-xs rounded-md transition-colors ${user?.role === r
+                                            ? 'bg-white text-slate-900 shadow-sm font-medium'
+                                            : 'text-slate-500 hover:text-slate-900'
+                                            }`}
+                                    >
+                                        {ROLE_DISPLAY_NAMES[r]}
+                                    </button>
+                                ))}
+                            </div>
+
                             {/* Time Range Selector */}
                             <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                                 {timeRanges.map((range) => (
@@ -190,117 +274,134 @@ export default function DashboardPage() {
                 >
                     {/* Stat Cards */}
                     <div key="stat-1">
-                        <Widget title="總對話數">
+                        <Widget title={user?.role === 'student' ? "總學習時數" : "總對話數"}>
                             <StatCardContent
-                                value={stats.usage.totalSessions.toString()}
-                                icon={MessageSquare}
+                                value={user?.role === 'student'
+                                    ? (stats.usage.totalLearningHours || 0).toString() + " 小時"
+                                    : stats.usage.totalSessions.toString()}
+                                icon={user?.role === 'student' ? Clock : MessageSquare}
                                 color="blue"
-                                trend="+12%"
+                                trend={user?.role === 'student' ? "+2.5" : "+12%"}
                             />
                         </Widget>
                     </div>
                     <div key="stat-2">
-                        <Widget title="活躍使用者">
+                        <Widget title={user?.role === 'student' ? "學習積分" : "活躍使用者"}>
                             <StatCardContent
-                                value={stats.usage.activeUsers.toString()}
-                                icon={Users}
-                                color="green"
-                                trend="+5%"
+                                value={user?.role === 'student'
+                                    ? (stats.usage.learningScore || 0).toLocaleString()
+                                    : stats.usage.activeUsers.toString()}
+                                icon={user?.role === 'student' ? Trophy : Users}
+                                color={user?.role === 'student' ? "amber" : "green"}
+                                trend={user?.role === 'student' ? "Top 10%" : "+5%"}
                             />
                         </Widget>
                     </div>
                     <div key="stat-3">
-                        <Widget title="總訊息數">
+                        <Widget title={user?.role === 'student' ? "連續學習" : "總訊息數"}>
                             <StatCardContent
-                                value={stats.usage.totalMessages.toLocaleString()}
-                                icon={TrendingUp}
+                                value={user?.role === 'student'
+                                    ? (stats.usage.studyStreak || 0).toString() + " 天"
+                                    : stats.usage.totalMessages.toLocaleString()}
+                                icon={user?.role === 'student' ? Star : TrendingUp}
                                 color="purple"
-                                trend="+18%"
+                                trend={user?.role === 'student' ? "🔥" : "+18%"}
                             />
                         </Widget>
                     </div>
                     <div key="stat-4">
-                        <Widget title="Token 使用量">
+                        <Widget title={user?.role === 'student' ? "完成課程" : "Token 使用量"}>
                             <StatCardContent
-                                value={(stats.usage.totalTokens / 1000).toFixed(0) + 'K'}
-                                icon={Coins}
-                                color="amber"
-                                trend="+8%"
+                                value={user?.role === 'student'
+                                    ? stats.usage.totalSessions.toString()
+                                    : (stats.usage.totalTokens / 1000).toFixed(0) + 'K'}
+                                icon={user?.role === 'student' ? CheckCircle : Coins}
+                                color={user?.role === 'student' ? "green" : "amber"}
+                                trend={user?.role === 'student' ? "+3" : "+8%"}
                             />
                         </Widget>
                     </div>
 
-                    {/* Bar Chart */}
-                    <div key="bar-chart">
-                        <Widget title="每日使用量">
-                            <div className="h-full w-full pt-2">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={dailyData}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                        <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} />
-                                        <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: 'white',
-                                                border: '1px solid #e2e8f0',
-                                                borderRadius: '8px',
-                                            }}
-                                        />
-                                        <Bar dataKey="sessions" name="對話數" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                                        <Bar dataKey="messages" name="訊息數" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                                        <Legend />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </Widget>
-                    </div>
-
-                    {/* Radar Chart */}
-                    <div key="radar-chart">
-                        <Widget title="能力雷達圖">
-                            <div className="h-full w-full pt-2">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <RadarChart data={abilityData}>
-                                        <PolarGrid stroke="#e2e8f0" />
-                                        <PolarAngleAxis dataKey="ability" tick={{ fill: '#64748b', fontSize: 12 }} />
-                                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} />
-                                        <Radar name="能力分數" dataKey="score" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} />
-                                        <Legend />
-                                    </RadarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </Widget>
-                    </div>
-
-                    {/* Alerts Widget */}
-                    <div key="alerts">
-                        <Widget title="異常警示" headerAction={<Badge variant="outline" className="text-xs">{alertsData.length}</Badge>}>
-                            <div className="space-y-2 overflow-auto h-full">
-                                {alertsData.map((alert) => (
-                                    <div
-                                        key={alert.id}
-                                        className={`p-3 rounded-lg border flex items-start gap-3 ${alert.type === 'error'
-                                            ? 'bg-red-50 border-red-200'
-                                            : alert.type === 'warning'
-                                                ? 'bg-amber-50 border-amber-200'
-                                                : 'bg-blue-50 border-blue-200'
-                                            }`}
-                                    >
-                                        <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${alert.type === 'error'
-                                            ? 'text-red-500'
-                                            : alert.type === 'warning'
-                                                ? 'text-amber-500'
-                                                : 'text-blue-500'
-                                            }`} />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm text-slate-700 font-medium">{alert.message}</p>
-                                            <p className="text-xs text-slate-500 mt-1">{new Date(alert.time).toLocaleString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</p>
-                                        </div>
+                    {/* Bar Chart - Hide for Students */}
+                    {user?.role !== 'student' && (
+                        <div key="bar-chart">
+                            <Widget title="每日使用量">
+                                <div className="flex flex-col h-full w-full pt-2">
+                                    <div className="flex-1 min-h-0">
+                                        <ResponsiveContainer width="100%" height="100%" debounce={200}>
+                                            <BarChart data={dailyData}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                                <XAxis dataKey="date" tick={AXIS_TICK_STYLE} />
+                                                <YAxis tick={AXIS_TICK_STYLE} />
+                                                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                                                <Bar dataKey="sessions" name="對話數" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                                <Bar dataKey="messages" name="訊息數" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
                                     </div>
-                                ))}
-                            </div>
-                        </Widget>
-                    </div>
+                                    <CustomLegend data={[
+                                        { name: '對話數', color: '#3b82f6' },
+                                        { name: '訊息數', color: '#8b5cf6' }
+                                    ]} />
+                                </div>
+                            </Widget>
+                        </div>
+                    )}
+
+                    {/* Radar Chart - Hide for Students */}
+                    {user?.role !== 'student' && (
+                        <div key="radar-chart">
+                            <Widget title="能力雷達圖">
+                                <div className="flex flex-col h-full w-full pt-2">
+                                    <div className="flex-1 min-h-0">
+                                        <ResponsiveContainer width="100%" height="100%" debounce={200}>
+                                            <RadarChart data={abilityData}>
+                                                <PolarGrid stroke="#e2e8f0" />
+                                                <PolarAngleAxis dataKey="ability" tick={AXIS_TICK_STYLE} />
+                                                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={RADIUS_TICK_STYLE} />
+                                                <Radar name="能力分數" dataKey="score" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} />
+                                            </RadarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <CustomLegend data={[
+                                        { name: '能力分數', color: '#3b82f6' }
+                                    ]} />
+                                </div>
+                            </Widget>
+                        </div>
+                    )}
+
+                    {/* Alerts Widget - Hide for Students */}
+                    {user?.role !== 'student' && (
+                        <div key="alerts">
+                            <Widget title="異常警示" headerAction={<Badge variant="outline" className="text-xs">{alertsData.length}</Badge>}>
+                                <div className="space-y-2 overflow-auto h-full">
+                                    {alertsData.map((alert) => (
+                                        <div
+                                            key={alert.id}
+                                            className={`p-3 rounded-lg border flex items-start gap-3 ${alert.type === 'error'
+                                                ? 'bg-red-50 border-red-200'
+                                                : alert.type === 'warning'
+                                                    ? 'bg-amber-50 border-amber-200'
+                                                    : 'bg-blue-50 border-blue-200'
+                                                }`}
+                                        >
+                                            <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${alert.type === 'error'
+                                                ? 'text-red-500'
+                                                : alert.type === 'warning'
+                                                    ? 'text-amber-500'
+                                                    : 'text-blue-500'
+                                                }`} />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm text-slate-700 font-medium">{alert.message}</p>
+                                                <p className="text-xs text-slate-500 mt-1">{new Date(alert.time).toLocaleString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Widget>
+                        </div>
+                    )}
 
                     {/* Popular Agents Widget */}
                     <div key="popular-agents">

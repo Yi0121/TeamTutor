@@ -68,7 +68,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 
 // Route permission requirements
 export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
-    '/admin': ['manage_system', 'manage_organization'],
+    '/admin': ['manage_system'],
+    '/admin/users': ['manage_users'],
     '/admin/organization': ['manage_organization'],
     '/admin/quota': ['manage_quotas'],
     '/agents': ['manage_agents'],
@@ -108,12 +109,16 @@ export function hasAllPermissions(role: UserRole, permissions: Permission[]): bo
 
 export function canAccessRoute(role: UserRole, pathname: string): boolean {
     // Find matching route pattern
-    const routeEntry = Object.entries(ROUTE_PERMISSIONS).find(([route]) => {
+    // Find all matching route patterns
+    const matches = Object.entries(ROUTE_PERMISSIONS).filter(([route]) => {
         if (route === pathname) return true;
-        // Handle dynamic routes (e.g., /agents/[id])
+        // Handle dynamic routes and path prefix matching
         const baseRoute = pathname.split('/').slice(0, route.split('/').length).join('/');
         return route === baseRoute;
     });
+
+    // Sort by length descending to get the most specific match first
+    const routeEntry = matches.sort((a, b) => b[0].length - a[0].length)[0];
 
     if (!routeEntry) {
         // Route not in permission list = accessible to all

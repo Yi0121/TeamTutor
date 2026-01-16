@@ -166,6 +166,9 @@
     "agents": [
         {
             "id": "ai-assistant",
+            "ownerId": "user-002",
+            "isSystem": true,
+            "visibility": "public",
             "name": "AI 助教",
             "description": "友善的教學助理，負責協助老師管理課堂秩序，並在學生遇到困難時提供引導。",
             "avatar": "/avatars/tutor-ai.svg",
@@ -186,6 +189,9 @@
         },
         {
             "id": "ai-peer-a",
+            "ownerId": "user-002",
+            "isSystem": true,
+            "visibility": "public",
             "name": "AI 同儕 A",
             "description": "資優生 AI，反應快，喜歡補充額外知識，有時會顯得有點愛現。",
             "avatar": "/avatars/alice-ai.svg",
@@ -206,6 +212,9 @@
         },
         {
             "id": "ai-peer-b",
+            "ownerId": "user-002",
+            "isSystem": true,
+            "visibility": "public",
             "name": "AI 同儕 B",
             "description": "學習緩慢的 AI，容易分心，經常問一些基礎或重複的問題。",
             "avatar": "/avatars/bob-ai.svg",
@@ -224,6 +233,9 @@
         },
         {
             "id": "ai-peer-c",
+            "ownerId": "user-002",
+            "isSystem": true,
+            "visibility": "public",
             "name": "AI 同儕 C",
             "description": "跳躍思考的 AI，創意豐富，常會問出意想不到的問題。",
             "avatar": "/avatars/charlie-ai.svg",
@@ -244,6 +256,12 @@
     "knowledgeBases": [
         {
             "id": "kb-math-basic",
+            "ownerId": "user-002",
+            "allowedRoles": [
+                "teacher",
+                "admin",
+                "student"
+            ],
             "name": "國中數學基礎",
             "description": "涵蓋國中一至三年級的數學基礎知識",
             "documentCount": 45,
@@ -252,6 +270,11 @@
         },
         {
             "id": "kb-math-advanced",
+            "ownerId": "user-002",
+            "allowedRoles": [
+                "teacher",
+                "admin"
+            ],
             "name": "高中數學進階",
             "description": "包含高中數學的進階概念與證明",
             "documentCount": 78,
@@ -260,6 +283,11 @@
         },
         {
             "id": "kb-curriculum",
+            "ownerId": "user-003",
+            "allowedRoles": [
+                "teacher",
+                "admin"
+            ],
             "name": "課綱教學指引",
             "description": "108 課綱數學領域教學指引",
             "documentCount": 12,
@@ -278,37 +306,44 @@
             {
                 "date": "2026-01-08",
                 "sessions": 18,
-                "messages": 520
+                "messages": 520,
+                "tokens": 12500
             },
             {
                 "date": "2026-01-09",
                 "sessions": 22,
-                "messages": 680
+                "messages": 680,
+                "tokens": 18400
             },
             {
                 "date": "2026-01-10",
                 "sessions": 25,
-                "messages": 750
+                "messages": 750,
+                "tokens": 21000
             },
             {
                 "date": "2026-01-11",
                 "sessions": 15,
-                "messages": 420
+                "messages": 420,
+                "tokens": 11200
             },
             {
                 "date": "2026-01-12",
                 "sessions": 28,
-                "messages": 890
+                "messages": 890,
+                "tokens": 24500
             },
             {
                 "date": "2026-01-13",
                 "sessions": 32,
-                "messages": 980
+                "messages": 980,
+                "tokens": 28000
             },
             {
                 "date": "2026-01-14",
                 "sessions": 16,
-                "messages": 280
+                "messages": 280,
+                "tokens": 8500
             }
         ],
         "abilityScores": {

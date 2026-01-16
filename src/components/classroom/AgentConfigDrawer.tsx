@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { Participant } from '@/types';
 import MockDataService from '@/lib/mock';
 import type { AgentConfig } from '@/types';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 interface AgentConfigDrawerProps {
     participant: Participant;
@@ -13,16 +14,20 @@ interface AgentConfigDrawerProps {
     onClose: () => void;
 }
 
-const agents = MockDataService.getAgents();
-
 export function AgentConfigDrawer({
     participant,
     isOpen,
     onClose,
 }: AgentConfigDrawerProps) {
-    if (!isOpen) return null;
+    const { user } = useAuth();
+    // Fetch specifically related to this participant, but we need the full list to check existence/correlation in this mock setup
+    // Ideally we would fetch by ID directly, which MockDataService supports
+    const agentConfig = MockDataService.getAgentById(participant.id);
 
-    const agentConfig = agents.find((a) => a.id === participant.id);
+    // In a real scenario we might check ownership here too if we want to restrict viewing details
+    // const canView = agentConfig && (agentConfig.isSystem || agentConfig.ownerId === user?.id || agentConfig.visibility === 'public');
+
+    if (!isOpen) return null;
 
     return (
         <>

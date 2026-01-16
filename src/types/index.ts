@@ -60,6 +60,9 @@ export interface Session {
 
 export interface AgentConfig {
     id: string;
+    ownerId: string;           // New: Owner of the resource
+    isSystem: boolean;         // New: System default resource
+    visibility: 'private' | 'public' | 'school'; // New: Visibility scope
     name: string;
     description: string;
     avatar: string;
@@ -100,6 +103,8 @@ export interface CommunicationStyleDetailed {
 
 export interface KnowledgeBase {
     id: string;
+    ownerId: string;           // New
+    allowedRoles: string[];    // New: RBAC for RAG (e.g. ['teacher', 'admin'])
     name: string;
     description: string;
     documentCount: number;
@@ -115,6 +120,7 @@ export interface DailyUsage {
     date: string;
     sessions: number;
     messages: number;
+    tokens: number;
 }
 
 export interface AbilityScores {
@@ -140,6 +146,10 @@ export interface DashboardStats {
         totalMessages: number;
         totalTokens: number;
         activeUsers: number;
+        // Student specific metrics
+        learningScore?: number;
+        studyStreak?: number;
+        totalLearningHours?: number;
     };
     dailyUsage: DailyUsage[];
     abilityScores: AbilityScores;

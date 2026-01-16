@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Plus, Bot, Brain, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -5,15 +7,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import MockDataService from '@/lib/mock';
 import type { AgentConfig, LLMModel } from '@/types';
-
-const agents = MockDataService.getAgents();
-const models = MockDataService.getLLMModels();
-
-function getModelName(modelId: string): string {
-    return models.find((m) => m.id === modelId)?.name || modelId;
-}
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function AgentsPage() {
+    const { user } = useAuth();
+    // In a real app, this would be an async API call via useEffect
+    // For now, we pass user?.id to our mock service which filters synchronously
+    const agents = MockDataService.getAgents(user?.id);
+    const models = MockDataService.getLLMModels();
+
+    function getModelName(modelId: string): string {
+        return models.find((m) => m.id === modelId)?.name || modelId;
+    }
+
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Header */}
@@ -24,9 +30,11 @@ export default function AgentsPage() {
                             <h1 className="text-2xl font-bold text-slate-900">AI 代理人管理</h1>
                             <p className="text-slate-500 mt-1">設定與管理虛擬課堂中的 AI 角色</p>
                         </div>
-                        <Button className="gap-2">
-                            <Plus className="w-4 h-4" />
-                            新增代理人
+                        <Button className="gap-2" asChild>
+                            <Link href="/agents/new">
+                                <Plus className="w-4 h-4" />
+                                新增代理人
+                            </Link>
                         </Button>
                     </div>
                 </div>
@@ -36,7 +44,7 @@ export default function AgentsPage() {
             <main className="max-w-7xl mx-auto px-6 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {agents.map((agent) => (
-                        <AgentCard key={agent.id} agent={agent} />
+                        <AgentCard key={agent.id} agent={agent} getModelName={getModelName} />
                     ))}
                 </div>
             </main>
@@ -44,7 +52,7 @@ export default function AgentsPage() {
     );
 }
 
-function AgentCard({ agent }: { agent: AgentConfig }) {
+function AgentCard({ agent, getModelName }: { agent: AgentConfig; getModelName: (id: string) => string }) {
     const modelName = getModelName(agent.baseModel);
 
     return (

@@ -23,10 +23,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import MockDataService from '@/lib/mock';
 import type { AgentConfig, LLMModel, KnowledgeBase, CommunicationStyleOption } from '@/types';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 const agents = MockDataService.getAgents();
 const models = MockDataService.getLLMModels();
-const knowledgeBases = MockDataService.getKnowledgeBases();
+// knowledgeBases fetching moved inside component to access user context
 const communicationStyles = MockDataService.getCommunicationStyles();
 
 // Get templates from service
@@ -42,6 +43,9 @@ interface SuggestedQuestion {
 }
 
 export default function AgentEditPage() {
+    const { user } = useAuth();
+    const knowledgeBases = MockDataService.getKnowledgeBases(user?.id);
+
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -56,6 +60,9 @@ export default function AgentEditPage() {
     // Initial state logic
     const initialAgent: AgentConfig | null = originalAgent || (agentId === 'new' ? {
         id: `agent-${Date.now()}`,
+        ownerId: user?.id || 'unknown',
+        isSystem: false,
+        visibility: 'private',
         name: template ? template.name : '新代理人',
         description: template ? template.description : '',
         baseModel: 'gpt-4o',

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import {
     type AuthUser,
     type UserRole,
@@ -40,7 +40,7 @@ const MOCK_USERS: Record<UserRole, AuthUser> = {
         name: '系統管理員',
         email: 'admin@teamtutor.edu.tw',
         role: 'super_admin',
-        avatar: '/avatars/admin.png',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
     },
     school_admin: {
         id: 'user-school-admin',
@@ -48,7 +48,7 @@ const MOCK_USERS: Record<UserRole, AuthUser> = {
         email: 'principal@school.edu.tw',
         role: 'school_admin',
         organizationId: 'org-school-1',
-        avatar: '/avatars/principal.png',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
     },
     teacher: {
         id: 'user-teacher-001',
@@ -56,7 +56,7 @@ const MOCK_USERS: Record<UserRole, AuthUser> = {
         email: 'wang.teacher@school.edu.tw',
         role: 'teacher',
         organizationId: 'org-school-1',
-        avatar: '/avatars/teacher.png',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Scooter',
     },
     student: {
         id: 'user-student-001',
@@ -64,9 +64,13 @@ const MOCK_USERS: Record<UserRole, AuthUser> = {
         email: 'student@school.edu.tw',
         role: 'student',
         organizationId: 'org-school-1',
-        avatar: '/avatars/student.png',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Micah',
     },
 };
+
+// =============================================================================
+// Auth Provider
+// =============================================================================
 
 // =============================================================================
 // Auth Provider
@@ -77,16 +81,34 @@ interface AuthProviderProps {
     defaultRole?: UserRole;
 }
 
+const STORAGE_KEY = 'teamtutor_auth_user';
+
 export function AuthProvider({ children, defaultRole = 'teacher' }: AuthProviderProps) {
-    // Default to teacher role for demo
-    const [user, setUser] = useState<AuthUser | null>(MOCK_USERS[defaultRole]);
-    const [isLoading, setIsLoading] = useState(false);
+    // Start with loading true to prevent flash of wrong content
+    const [user, setUser] = useState<AuthUser | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                setUser(JSON.parse(stored));
+            } catch (e) {
+                console.error('Failed to parse auth user', e);
+                setUser(MOCK_USERS[defaultRole]);
+            }
+        } else {
+            setUser(MOCK_USERS[defaultRole]);
+        }
+        setIsLoading(false);
+    }, [defaultRole]);
 
     const login = useCallback((newUser: AuthUser) => {
         setIsLoading(true);
         // Simulate API call
         setTimeout(() => {
             setUser(newUser);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
             setIsLoading(false);
         }, 300);
     }, []);
@@ -95,13 +117,16 @@ export function AuthProvider({ children, defaultRole = 'teacher' }: AuthProvider
         setIsLoading(true);
         setTimeout(() => {
             setUser(null);
+            localStorage.removeItem(STORAGE_KEY);
             setIsLoading(false);
         }, 300);
     }, []);
 
     // For demo: quick role switching
     const switchRole = useCallback((role: UserRole) => {
-        setUser(MOCK_USERS[role]);
+        const newUser = MOCK_USERS[role];
+        setUser(newUser);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
     }, []);
 
     const can = useCallback((permission: Permission): boolean => {
@@ -124,7 +149,7 @@ export function AuthProvider({ children, defaultRole = 'teacher' }: AuthProvider
         return ROLE_DISPLAY_NAMES[user.role];
     }, [user]);
 
-    const value: AuthContextType = {
+    const value = useMemo<AuthContextType>(() => ({
         user,
         isAuthenticated: !!user,
         isLoading,
@@ -135,7 +160,7 @@ export function AuthProvider({ children, defaultRole = 'teacher' }: AuthProvider
         canAny,
         canAccess,
         getRoleDisplayName,
-    };
+    }), [user, isLoading, login, logout, switchRole, can, canAny, canAccess, getRoleDisplayName]);
 
     return (
         <AuthContext.Provider value={value}>

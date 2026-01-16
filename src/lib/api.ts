@@ -35,9 +35,9 @@ export const api = {
     // Agents
     // -------------------------------------------------------------------------
     agents: {
-        list: async (): Promise<AgentConfig[]> => {
+        list: async (userId?: string): Promise<AgentConfig[]> => {
             await delay(400);
-            return MockDataService.getAgents();
+            return MockDataService.getAgents(userId);
         },
         get: async (id: string): Promise<AgentConfig | null> => {
             await delay(300);
@@ -49,9 +49,9 @@ export const api = {
     // Knowledge Bases
     // -------------------------------------------------------------------------
     knowledge: {
-        list: async (): Promise<KnowledgeBase[]> => {
+        list: async (userId?: string): Promise<KnowledgeBase[]> => {
             await delay(400);
-            return MockDataService.getKnowledgeBases();
+            return MockDataService.getKnowledgeBases(userId);
         },
         get: async (id: string): Promise<KnowledgeBase | null> => {
             await delay(300);

@@ -18,10 +18,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import MockDataService from '@/lib/mock';
 import type { KnowledgeBase } from '@/types';
-
-const knowledgeBases = MockDataService.getKnowledgeBases();
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export default function KnowledgePage() {
+    const { user } = useAuth();
+    // Use user ID to filter knowledge bases
+    const knowledgeBases = MockDataService.getKnowledgeBases(user?.id);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<string[]>([]);
     const [isSearching, setIsSearching] = useState(false);
