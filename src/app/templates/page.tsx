@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
     Bot,
     GitBranch,
@@ -60,15 +61,21 @@ export default function TemplatesPage() {
         return matchesFilter && matchesSearch;
     });
 
+    const router = useRouter(); // Initialize router
+
     const handleUseTemplate = (templateId: string, templateName: string, type: TabType) => {
         const confirmMsg = `確定要使用「${templateName}」這個${type === 'agent' ? '代理人' : '工作流'}模板嗎？\n這將會建立一個新的副本。`;
         if (confirm(confirmMsg)) {
-            // Mock API call
+            // Mock API call - in reality we would create a copy backend side
             console.log(`Using template: ${templateId} (${type})`);
-            const targetUrl = type === 'agent' ? '/agents/new' : '/builder/new';
-            // In a real app we would pass the template ID, here we just mock the redirect
-            alert(`已建立副本！正在導向至編輯頁面...`);
-            // router.push(`${targetUrl}?template=${templateId}`);
+
+            if (type === 'agent') {
+                // Navigate to agent creation with template ID
+                router.push(`/agents/new?template=${templateId}`);
+            } else {
+                // Navigate to builder with template ID
+                router.push(`/builder?template=${templateId}`);
+            }
         }
     };
 

@@ -24,7 +24,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import mockData from '../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 
 // Mock classroom sessions data
 interface ClassroomSession {
@@ -38,17 +38,19 @@ interface ClassroomSession {
     messageCount: number;
 }
 
+const activeSession = MockDataService.getSession();
+
 // Generate mock sessions from existing data
 const mockSessions: ClassroomSession[] = [
     {
         id: 'demo',
-        title: mockData.session.title,
+        title: activeSession.title,
         description: '與 AI 助教和同儕一起學習數學基礎概念',
-        participants: mockData.session.participants.length,
+        participants: activeSession.participants.length,
         status: 'active',
-        createdAt: mockData.session.createdAt,
-        lastActivity: mockData.session.updatedAt,
-        messageCount: mockData.session.messages.length,
+        createdAt: activeSession.createdAt,
+        lastActivity: activeSession.updatedAt,
+        messageCount: activeSession.messages.length,
     },
     {
         id: 'session-002',

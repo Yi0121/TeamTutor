@@ -31,43 +31,10 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import mockData from '../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    status: 'active' | 'inactive';
-    lastLogin: string;
-    usage: {
-        tokens: number;
-        sessions: number;
-    };
-}
-
-interface SystemStats {
-    totalUsers: number;
-    activeUsers: number;
-    totalSessions: number;
-    totalTokens: number;
-    serverStatus: 'healthy' | 'degraded' | 'down';
-    vectorDbStatus: 'healthy' | 'degraded' | 'down';
-    errorRate: number;
-    apiLatency: number;
-}
-
-const users = (mockData as { users?: User[] }).users || [];
-const stats = (mockData as { systemStats?: SystemStats }).systemStats || {
-    totalUsers: 0,
-    activeUsers: 0,
-    totalSessions: 0,
-    totalTokens: 0,
-    serverStatus: 'healthy',
-    vectorDbStatus: 'healthy',
-    errorRate: 0,
-    apiLatency: 0,
-};
+const users = MockDataService.getUsers();
+const stats = MockDataService.getSystemStats();
 
 // Mock data for charts
 const latencyData = [

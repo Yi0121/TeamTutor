@@ -2,6 +2,7 @@
 
 import { type ReactNode } from 'react';
 import { AuthProvider } from '@/lib/auth';
+import RouteGuard from '@/components/auth/RouteGuard';
 
 interface ProvidersProps {
     children: ReactNode;
@@ -10,7 +11,9 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
     return (
         <AuthProvider defaultRole="teacher">
-            {children}
+            <RouteGuard>
+                {children}
+            </RouteGuard>
         </AuthProvider>
     );
 }

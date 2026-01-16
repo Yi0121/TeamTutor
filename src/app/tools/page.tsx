@@ -6,31 +6,10 @@ import { Wrench, Zap, Clock, BarChart3, Power } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AddToolModal } from '@/components/tools/AddToolModal';
-import mockData from '../../../mock_data.json';
+import MockDataService, { type Tool, type ToolLog } from '@/lib/mock';
 
-interface Tool {
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    category: string;
-    status: 'active' | 'inactive';
-    callCount: number;
-    lastUsed: string;
-}
-
-interface ToolLog {
-    id: string;
-    toolId: string;
-    timestamp: string;
-    input: Record<string, unknown>;
-    output: string;
-    duration: number;
-    status: 'success' | 'error';
-}
-
-const tools = (mockData as { tools?: Tool[] }).tools || [];
-const toolLogs = (mockData as { toolLogs?: ToolLog[] }).toolLogs || [];
+const tools = MockDataService.getTools();
+const toolLogs = MockDataService.getToolLogs();
 
 function getCategoryColor(category: string) {
     switch (category) {

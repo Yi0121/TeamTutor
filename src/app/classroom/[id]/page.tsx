@@ -1,8 +1,8 @@
 import { ChatInterface } from '@/components/classroom/ChatInterface';
-import mockData from '../../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 import type { Session } from '@/types';
 
-const session = mockData.session as Session;
+const session = MockDataService.getSession();
 
 export default function ClassroomPage() {
     return (

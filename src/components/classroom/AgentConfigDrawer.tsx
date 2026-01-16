@@ -4,20 +4,8 @@ import { X, Bot, Thermometer, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { Participant } from '@/types';
-import mockData from '../../../mock_data.json';
-
-interface AgentConfig {
-    id: string;
-    name: string;
-    avatar: string;
-    description: string;
-    baseModel: string;
-    systemPrompt: string;
-    temperature: number;
-    communicationStyle: string;
-    knowledgeLevel: number;
-    ragKnowledgeBaseIds: string[];
-}
+import MockDataService from '@/lib/mock';
+import type { AgentConfig } from '@/types';
 
 interface AgentConfigDrawerProps {
     participant: Participant;
@@ -25,7 +13,7 @@ interface AgentConfigDrawerProps {
     onClose: () => void;
 }
 
-const agents = (mockData as unknown as { agents?: AgentConfig[] }).agents || [];
+const agents = MockDataService.getAgents();
 
 export function AgentConfigDrawer({
     participant,

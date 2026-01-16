@@ -30,17 +30,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import mockData from '../../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 
+/*
 // Mock Data Types
 interface AnalyticsData {
     usageByModel: { modelId: string; name: string; tokens: number; cost: number }[];
     usageByUser: { userId: string; name: string; role: string; sessions: number; tokens: number }[];
     hourlyActivity: { hour: string; users: number }[];
 }
+*/
 
-const analytics = (mockData as any).analytics as AnalyticsData;
-const stats = mockData.dashboardStats;
+const analytics = MockDataService.getAnalytics();
+const stats = MockDataService.getDashboardStats();
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 

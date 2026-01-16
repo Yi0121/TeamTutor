@@ -6,8 +6,9 @@ import {
     Card,
     CardContent,
 } from '@/components/ui/card';
-import mockData from '../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 
+/*
 interface SessionHistory {
     id: string;
     title: string;
@@ -17,8 +18,9 @@ interface SessionHistory {
     messageCount: number;
     events: unknown[];
 }
+*/
 
-const sessions = (mockData as { sessionHistory?: SessionHistory[] }).sessionHistory || [];
+const sessions = MockDataService.getSessionHistory();
 
 export default function HistoryListPage() {
     return (

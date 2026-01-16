@@ -37,14 +37,4 @@ export const useUIStore = create<UIState>()(
     )
 );
 
-// =============================================================================
-// Legacy Export (for backward compatibility)
-// =============================================================================
-// @deprecated Use useUIStore instead. User state should come from useAuth().
 
-/**
- * @deprecated This export is maintained for backward compatibility.
- * - For UI state (theme, sidebar): use `useUIStore()`
- * - For user/auth state: use `useAuth()` from '@/lib/auth'
- */
-export const useStore = useUIStore;

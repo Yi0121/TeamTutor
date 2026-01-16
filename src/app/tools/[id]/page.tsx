@@ -26,8 +26,9 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import mockData from '../../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 
+/*
 interface Tool {
     id: string;
     name: string;
@@ -48,9 +49,10 @@ interface ToolLog {
     duration: number;
     status: 'success' | 'error';
 }
+*/
 
-const tools = (mockData as { tools?: Tool[] }).tools || [];
-const toolLogs = (mockData as { toolLogs?: ToolLog[] }).toolLogs || [];
+const tools = MockDataService.getTools();
+const toolLogs = MockDataService.getToolLogs();
 
 export default function ToolDetailPage() {
     const params = useParams();

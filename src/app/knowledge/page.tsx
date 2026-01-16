@@ -16,10 +16,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import mockData from '../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 import type { KnowledgeBase } from '@/types';
 
-const knowledgeBases = mockData.knowledgeBases as KnowledgeBase[];
+const knowledgeBases = MockDataService.getKnowledgeBases();
 
 export default function KnowledgePage() {
     const [searchQuery, setSearchQuery] = useState('');

@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { ParticipantsPanel } from '@/components/classroom/ParticipantsPanel';
 import { ContextPanel } from '@/components/classroom/ContextPanel';
-import mockData from '../../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 import type { Session } from '@/types';
 
-const session = mockData.session as Session;
+const session = MockDataService.getSession();
 
 export default function ClassroomLayout({
     children,

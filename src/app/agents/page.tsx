@@ -3,11 +3,11 @@ import { Plus, Bot, Brain, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import mockData from '../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 import type { AgentConfig, LLMModel } from '@/types';
 
-const agents = mockData.agents as AgentConfig[];
-const models = mockData.llmModels as LLMModel[];
+const agents = MockDataService.getAgents();
+const models = MockDataService.getLLMModels();
 
 function getModelName(modelId: string): string {
     return models.find((m) => m.id === modelId)?.name || modelId;

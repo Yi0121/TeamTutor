@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
     ArrowLeft,
     Save,
@@ -21,21 +21,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import mockData from '../../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 import type { AgentConfig, LLMModel, KnowledgeBase, CommunicationStyleOption } from '@/types';
 
-const agents = mockData.agents as AgentConfig[];
-const models = mockData.llmModels as LLMModel[];
-const knowledgeBases = mockData.knowledgeBases as KnowledgeBase[];
-const communicationStyles = mockData.communicationStyles as CommunicationStyleOption[];
+const agents = MockDataService.getAgents();
+const models = MockDataService.getLLMModels();
+const knowledgeBases = MockDataService.getKnowledgeBases();
+const communicationStyles = MockDataService.getCommunicationStyles();
 
-// Mock Prompt Templates
-const promptTemplates = [
-    { id: 'tpl-001', name: '友善導師', prompt: '你是一位友善的教學導師，用鼓勵的語氣引導學生學習。' },
-    { id: 'tpl-002', name: '嚴格教練', prompt: '你是一位嚴格的教練，要求學生精確回答，對錯誤即時糾正。' },
-    { id: 'tpl-003', name: '蘇格拉底式', prompt: '你運用蘇格拉底式提問法，不直接給答案，透過問題引導學生思考。' },
-    { id: 'tpl-004', name: '同儕夥伴', prompt: '你是學生的同儕，用輕鬆聊天的方式討論問題，可以分享自己的（模擬的）困惑。' },
-];
+// Get templates from service
+const promptTemplates = MockDataService.getAgentTemplates().map(t => ({
+    id: t.id,
+    name: t.name,
+    prompt: t.preview,
+}));
 
 interface SuggestedQuestion {
     displayText: string;
@@ -45,11 +44,33 @@ interface SuggestedQuestion {
 export default function AgentEditPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const agentId = params.id as string;
+    const templateId = searchParams.get('template');
+
+    // If "new" and templateId exists, try to find the template
+    const template = templateId ? MockDataService.getAgentTemplateById(templateId) : null;
 
     const originalAgent = agents.find((a) => a.id === agentId);
 
-    const [agent, setAgent] = useState<AgentConfig | null>(originalAgent || null);
+    // Initial state logic
+    const initialAgent: AgentConfig | null = originalAgent || (agentId === 'new' ? {
+        id: `agent-${Date.now()}`,
+        name: template ? template.name : '新代理人',
+        description: template ? template.description : '',
+        baseModel: 'gpt-4o',
+        systemPrompt: template ? template.preview : '',
+        temperature: 0.7,
+        communicationStyle: 'friendly',
+        knowledgeLevel: 2,
+        ragKnowledgeBaseIds: [],
+        suggestedQuestions: [],
+        avatar: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    } : null);
+
+    const [agent, setAgent] = useState<AgentConfig | null>(initialAgent);
     const [isTesting, setIsTesting] = useState(false);
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     const [showSaveAsTemplateModal, setShowSaveAsTemplateModal] = useState(false);
@@ -57,7 +78,7 @@ export default function AgentEditPage() {
 
     // Initialize suggested questions from agent data (or empty array)
     const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>(
-        (originalAgent?.suggestedQuestions || []).map(q => ({ displayText: q, actualPrompt: q }))
+        (initialAgent?.suggestedQuestions || []).map(q => ({ displayText: q, actualPrompt: q }))
     );
 
     if (!agent) {

@@ -37,10 +37,13 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import mockData from '../../../mock_data.json';
+import mockData, { type Alert, type PopularAgent, type LeaderboardStudent } from '@/lib/mock';
 import type { DashboardStats, DailyUsage, RecentSession } from '@/types';
 
-const stats = mockData.dashboardStats as DashboardStats;
+const stats = mockData.getDashboardStats() as DashboardStats;
+const alertsData = mockData.getAlerts() as Alert[];
+const popularAgentsData = mockData.getPopularAgents() as PopularAgent[];
+const leaderboardData = (mockData.getAnalytics()?.studentLeaderboard || []) as LeaderboardStudent[];
 
 // Time range options
 const timeRanges = [
@@ -64,36 +67,6 @@ const abilityData = [
     { ability: '問題解決', score: stats.abilityScores.problemSolving, fullMark: 100 },
     { ability: '創造力', score: stats.abilityScores.creativity, fullMark: 100 },
 ];
-
-interface Alert {
-    id: string;
-    type: 'warning' | 'error' | 'info';
-    message: string;
-    time: string;
-}
-
-interface PopularAgent {
-    id: string;
-    name: string;
-    usageCount: number;
-    rating: number;
-}
-
-interface LeaderboardStudent {
-    rank: number;
-    id: string;
-    name: string;
-    avatar: string;
-    class: string;
-    score: number;
-    sessions: number;
-    streak: number;
-    badges: string[];
-}
-
-const alertsData = (mockData as any).alerts as Alert[];
-const popularAgentsData = (mockData as any).popularAgents as PopularAgent[];
-const leaderboardData = ((mockData as any).analytics?.studentLeaderboard || []) as LeaderboardStudent[];
 
 // Default layout for widgets
 const defaultLayout = [

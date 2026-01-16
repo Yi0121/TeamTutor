@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from '@/components/Providers';
+import AppShell from '@/components/layout/AppShell';
 
 export const metadata: Metadata = {
   title: 'TeamTutor - 智慧虛擬課堂',
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="zh-TW">
       <body className="font-sans antialiased">
         <Providers>
-          {children}
+          <AppShell>
+            {children}
+          </AppShell>
         </Providers>
       </body>
     </html>

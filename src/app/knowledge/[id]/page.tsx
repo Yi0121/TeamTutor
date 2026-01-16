@@ -28,10 +28,10 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import mockData from '../../../../mock_data.json';
+import MockDataService from '@/lib/mock';
 import type { KnowledgeBase } from '@/types';
 
-const knowledgeBases = mockData.knowledgeBases as KnowledgeBase[];
+const knowledgeBases = MockDataService.getKnowledgeBases();
 
 // Mock files data
 const mockFiles = [

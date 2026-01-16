@@ -27,8 +27,10 @@ import {
 } from '@/components/ui/dialog';
 import PlaybackControls from '@/components/history/PlaybackControls';
 import MessageBubble, { Message } from '@/components/classroom/MessageBubble';
-import mockData from '../../../../mock_data.json';
+import MockDataService from '@/lib/mock';
+import type { SessionEvent, SessionHistory } from '@/lib/mock';
 
+/*
 interface SessionEvent {
     time: string;
     type: string;
@@ -49,6 +51,7 @@ interface SessionHistory {
     messageCount: number;
     events: SessionEvent[];
 }
+*/
 
 interface Annotation {
     id: string;
@@ -57,8 +60,8 @@ interface Annotation {
     createdAt: string;
 }
 
-const sessionHistory = ((mockData as { sessionHistory?: SessionHistory[] }).sessionHistory || [])[0];
-const participants = mockData.session.participants;
+const sessionHistory = (MockDataService.getSessionHistory() || [])[0];
+const participants = MockDataService.getSession().participants;
 
 export default function HistoryReplayPage() {
     const params = useParams();
