@@ -334,9 +334,10 @@ export default function DashboardPage() {
                         <Widget title="熱門代理人" headerAction={<Link href="/agents"><Button variant="ghost" size="sm" className="text-xs h-7">查看全部</Button></Link>}>
                             <div className="space-y-2 overflow-auto h-full">
                                 {popularAgentsData.map((agent, index) => (
-                                    <div
+                                    <Link
                                         key={agent.id}
-                                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                                        href={`/agents/${agent.id}`}
+                                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                                     >
                                         <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                                             {index + 1}
@@ -352,7 +353,7 @@ export default function DashboardPage() {
                                             <Star className="w-3 h-3 fill-current" />
                                             <span className="text-xs font-medium">{agent.rating}</span>
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         </Widget>

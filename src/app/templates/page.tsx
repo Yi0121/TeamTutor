@@ -25,128 +25,16 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import MockDataService, { type AgentTemplate, type WorkflowTemplate } from '@/lib/mock';
 
-// Mock Template Data
-const agentTemplates = [
-    {
-        id: 'tpl-agent-001',
-        name: '友善數學導師',
-        description: '專為數學教學設計的 AI 助教，善於用生活化的例子解釋抽象概念。',
-        author: '系統預設',
-        isSystem: true,
-        tags: ['數學', '教育', '導師'],
-        usageCount: 128,
-        createdAt: '2024-01-01',
-        preview: '你是一位友善的數學導師，專門幫助學生理解數學概念。你會用生活中的例子來解釋抽象的數學原理。',
-    },
-    {
-        id: 'tpl-agent-002',
-        name: '蘇格拉底式提問者',
-        description: '不直接給答案，用問題引導學生思考，培養批判性思維。',
-        author: '系統預設',
-        isSystem: true,
-        tags: ['通用', '思辨', '提問'],
-        usageCount: 89,
-        createdAt: '2024-01-05',
-        preview: '你運用蘇格拉底式提問法，不直接給答案，透過問題引導學生思考。',
-    },
-    {
-        id: 'tpl-agent-003',
-        name: '英語對話夥伴',
-        description: '模擬英語母語者的對話夥伴，幫助學生練習口語表達。',
-        author: '王老師',
-        isSystem: false,
-        tags: ['英語', '口語', '對話'],
-        usageCount: 45,
-        createdAt: '2024-02-10',
-        preview: 'You are a friendly English conversation partner. Help students practice speaking naturally.',
-    },
-    {
-        id: 'tpl-agent-004',
-        name: '歷史情境模擬者',
-        description: '扮演歷史人物，讓學生透過對話身歷其境，了解歷史背景。',
-        author: '系統預設',
-        isSystem: true,
-        tags: ['歷史', '角色扮演', '社會'],
-        usageCount: 210,
-        createdAt: '2024-01-20',
-        preview: '你將扮演指定的歷史人物，用第一人稱視角回答學生問題，堅持當時的價值觀與知識背景。',
-    },
-    {
-        id: 'tpl-agent-005',
-        name: '程式碼審查專家',
-        description: '協助學生檢查程式碼邏輯、風格與安全性，並給予具體建議。',
-        author: '張教授',
-        isSystem: false,
-        tags: ['程式', 'Code Review', '資訊'],
-        usageCount: 76,
-        createdAt: '2024-02-28',
-        preview: '你是資深的軟體工程師，請針對學生的程式碼進行 Code Review，指出潛在錯誤與優化空間。',
-    },
-];
-
-const workflowTemplates = [
-    {
-        id: 'tpl-wf-001',
-        name: '基礎問答流程',
-        description: '標準的學生提問、AI 回答、教師確認的三階段流程。',
-        author: '系統預設',
-        isSystem: true,
-        tags: ['基礎', '問答'],
-        usageCount: 234,
-        createdAt: '2024-01-01',
-        nodeCount: 5,
-    },
-    {
-        id: 'tpl-wf-002',
-        name: '協作討論模式',
-        description: '多個 AI 同儕輪流發言，引導深度討論的流程設計。',
-        author: '系統預設',
-        isSystem: true,
-        tags: ['協作', '討論', '進階'],
-        usageCount: 156,
-        createdAt: '2024-01-15',
-        nodeCount: 8,
-    },
-    {
-        id: 'tpl-wf-003',
-        name: '自適應學習路徑',
-        description: '根據學生表現動態調整問題難度的智慧流程。',
-        author: '李教授',
-        isSystem: false,
-        tags: ['自適應', '智慧'],
-        usageCount: 67,
-        createdAt: '2024-03-01',
-        nodeCount: 12,
-    },
-    {
-        id: 'tpl-wf-004',
-        name: 'PBL 專題導向流程',
-        description: '引導學生從問題定義、資料蒐集到方案提出的完整專題學習流程。',
-        author: '系統預設',
-        isSystem: true,
-        tags: ['PBL', '專題', '探究'],
-        usageCount: 112,
-        createdAt: '2024-01-25',
-        nodeCount: 15,
-    },
-    {
-        id: 'tpl-wf-005',
-        name: '辯論比賽流程',
-        description: '包含正方、反方 AI 與裁判 AI 的標準辯論流程控制。',
-        author: 'DebateClub',
-        isSystem: false,
-        tags: ['辯論', '思辨', '多人'],
-        usageCount: 34,
-        createdAt: '2024-03-10',
-        nodeCount: 9,
-    },
-];
+// Get templates from centralized MockDataService
+const agentTemplates = MockDataService.getAgentTemplates();
+const workflowTemplates = MockDataService.getWorkflowTemplates();
 
 type TabType = 'agent' | 'workflow';
 type FilterType = 'all' | 'system' | 'custom';
 
-type TemplateType = (typeof agentTemplates)[0] | (typeof workflowTemplates)[0];
+type TemplateType = AgentTemplate | WorkflowTemplate;
 
 export default function TemplatesPage() {
     const [activeTab, setActiveTab] = useState<TabType>('agent');
@@ -387,7 +275,7 @@ function TemplateCard({
     onUse,
     onPreview,
 }: {
-    template: (typeof agentTemplates)[0] | (typeof workflowTemplates)[0];
+    template: TemplateType;
     type: TabType;
     onUse: () => void;
     onPreview: () => void;
