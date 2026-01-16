@@ -10,6 +10,7 @@ import {
     canAccessRoute,
     ROLE_DISPLAY_NAMES,
 } from './permissions';
+import { setOnUnauthorized, setAuthToken } from '@/lib/api-client';
 
 // =============================================================================
 // Auth Context Type
@@ -117,10 +118,23 @@ export function AuthProvider({ children, defaultRole = 'teacher' }: AuthProvider
         setIsLoading(true);
         setTimeout(() => {
             setUser(null);
+            setAuthToken(null);
             localStorage.removeItem(STORAGE_KEY);
             setIsLoading(false);
         }, 300);
     }, []);
+
+    // Register 401 unauthorized callback for automatic logout
+    useEffect(() => {
+        setOnUnauthorized(() => {
+            console.warn('[Auth] 401 Unauthorized - Auto logout triggered');
+            logout();
+        });
+
+        return () => {
+            setOnUnauthorized(null);
+        };
+    }, [logout]);
 
     // For demo: quick role switching
     const switchRole = useCallback((role: UserRole) => {
