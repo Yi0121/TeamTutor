@@ -44,7 +44,12 @@ export default function MessageBubble({ message, sender, isOwn, mode = 'live', o
                 <div className="max-w-[70%] flex flex-col items-end">
                     <div className="bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-md shadow-sm">
                         <div className="prose prose-sm prose-invert max-w-none">
-                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                            <ReactMarkdown
+                                remarkPlugins={[remarkMath]}
+                                rehypePlugins={[rehypeKatex]}
+                            >
+                                {message.content}
+                            </ReactMarkdown>
                         </div>
                     </div>
                     <span className="text-xs text-slate-400 mt-1 mr-1">{timestamp}</span>
