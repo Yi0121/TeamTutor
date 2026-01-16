@@ -57,28 +57,129 @@ npm run dev
 
 ```
 src/
-├── app/                        # Next.js App Router 頁面
-│   ├── admin/                  # 系統管理
-│   │   ├── page.tsx           # 管理儀表板
-│   │   └── organization/      # 組織架構管理
-│   ├── agents/                 # AI 代理人
-│   │   ├── page.tsx           # 代理人列表
-│   │   └── [id]/              # 代理人編輯
-│   ├── builder/               # 視覺化情境編輯器
-│   ├── classroom/[id]/        # 多代理人對話教室
-│   ├── dashboard/             # 學習儀表板
-│   ├── embed/                 # 嵌入設定
-│   ├── history/               # 學習歷程
-│   ├── knowledge/             # 知識庫管理
-│   ├── templates/             # 模板庫
-│   └── tools/                 # MCP 工具管理
-├── components/                 # React 組件
-│   ├── builder/               # 流程編輯器組件
-│   ├── classroom/             # 教室相關組件
-│   └── ui/                    # Shadcn/UI 組件
-├── lib/                       # 工具函式
-└── types/                     # TypeScript 型別定義
+├── app/                        # Next.js 16 App Router 頁面
+│   ├── page.tsx                # 首頁（導航入口）
+│   ├── layout.tsx              # Root Layout
+│   ├── globals.css             # 全域樣式
+│   │
+│   ├── admin/                  # 系統管理模組
+│   │   ├── page.tsx            # 管理儀表板
+│   │   ├── organization/       # 組織架構管理
+│   │   │   └── page.tsx
+│   │   └── quota/              # Token 配額管理
+│   │       └── page.tsx
+│   │
+│   ├── agents/                 # AI 代理人模組
+│   │   ├── page.tsx            # 代理人列表
+│   │   └── [id]/               # 代理人詳情/編輯
+│   │       └── page.tsx
+│   │
+│   ├── builder/                # Workflow 視覺化編輯器
+│   │   └── page.tsx
+│   │
+│   ├── classroom/              # 多代理人虛擬課堂
+│   │   └── [id]/               # 課堂對話頁
+│   │       ├── page.tsx
+│   │       └── layout.tsx
+│   │
+│   ├── dashboard/              # 學習儀表板
+│   │   ├── page.tsx            # 主儀表板（可拖曳 Widget）
+│   │   └── analytics/          # 進階分析
+│   │       └── page.tsx
+│   │
+│   ├── embed/                  # 嵌入設定
+│   │   └── page.tsx
+│   │
+│   ├── history/                # 學習歷程模組
+│   │   ├── page.tsx            # 歷程列表
+│   │   └── [id]/               # 歷程詳情
+│   │       ├── page.tsx        # 回放頁面
+│   │       └── report/         # 省思報告
+│   │           └── page.tsx
+│   │
+│   ├── knowledge/              # RAG 知識庫模組
+│   │   ├── page.tsx            # 知識庫列表
+│   │   └── [id]/               # 知識庫詳情
+│   │       └── page.tsx
+│   │
+│   ├── templates/              # 情境模板庫
+│   │   └── page.tsx
+│   │
+│   └── tools/                  # MCP 工具模組
+│       ├── page.tsx            # 工具列表
+│       └── [id]/               # 工具詳情
+│           └── page.tsx
+│
+├── components/                 # React 共用組件
+│   ├── Providers.tsx           # Context Providers 包裝
+│   ├── admin/                  # 管理後台組件
+│   │   └── BatchImportModal.tsx
+│   ├── auth/                   # 權限相關組件
+│   │   └── RoleSwitcher.tsx
+│   ├── builder/                # Workflow 編輯器組件
+│   │   ├── CanvasToolbar.tsx
+│   │   ├── NodePalette.tsx
+│   │   ├── PropertyPanel.tsx
+│   │   └── nodes/              # 自訂節點類型
+│   │       ├── AgentNode.tsx
+│   │       ├── TriggerNode.tsx
+│   │       ├── ConditionNode.tsx
+│   │       ├── ActionNode.tsx
+│   │       └── EndNode.tsx
+│   ├── classroom/              # 課堂相關組件
+│   │   ├── ChatInterface.tsx   # 主對話介面
+│   │   ├── MessageBubble.tsx   # 訊息氣泡
+│   │   ├── MessageList.tsx
+│   │   ├── InputArea.tsx       # 輸入區域
+│   │   ├── ParticipantsPanel.tsx
+│   │   ├── ContextPanel.tsx
+│   │   ├── ToolCallCard.tsx
+│   │   ├── AgentConfigDrawer.tsx
+│   │   └── ConversationStatusBar.tsx
+│   ├── history/                # 歷程回放組件
+│   │   └── PlaybackControls.tsx
+│   ├── tools/                  # 工具管理組件
+│   │   └── AddToolModal.tsx
+│   └── ui/                     # 基礎 UI 組件 (Radix-based)
+│       ├── accordion.tsx
+│       ├── avatar.tsx
+│       ├── badge.tsx
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── checkbox.tsx
+│       ├── dialog.tsx
+│       ├── input.tsx
+│       ├── latex-renderer.tsx
+│       ├── scroll-area.tsx
+│       ├── select.tsx
+│       ├── slider.tsx
+│       ├── tabs.tsx
+│       └── textarea.tsx
+│
+├── lib/                        # 工具函式與服務
+│   ├── api.ts                  # API 服務層 (Mock)
+│   ├── store.ts                # Zustand 狀態管理
+│   ├── utils.ts                # 通用工具函式
+│   └── auth/                   # RBAC 權限系統
+│       ├── index.ts            # 模組匯出
+│       ├── AuthContext.tsx     # 認證 Context
+│       ├── PermissionGuard.tsx # 權限守衛組件
+│       └── permissions.ts      # 角色權限定義
+│
+└── types/                      # TypeScript 型別定義
+    ├── index.ts                # 核心型別
+    ├── react-katex.d.ts        # KaTeX 型別補丁
+    └── speech-recognition.d.ts # Web Speech API 型別
 ```
+
+### 目錄說明
+
+| 目錄 | 用途 |
+|------|------|
+| `app/` | Next.js 16 App Router，每個資料夾對應一個路由 |
+| `components/` | 可重用的 React 組件，依功能模組分類 |
+| `lib/` | 核心邏輯：API 呼叫、狀態管理、權限系統 |
+| `types/` | TypeScript 型別定義與第三方型別補丁 |
 
 ---
 

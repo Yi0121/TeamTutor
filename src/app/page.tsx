@@ -16,7 +16,7 @@ interface PageItem {
 
 const pages: PageItem[] = [
   {
-    href: '/classroom/demo',
+    href: '/classroom',
     icon: MessageSquare,
     title: '虛擬課堂',
     description: '多代理人對話教室',

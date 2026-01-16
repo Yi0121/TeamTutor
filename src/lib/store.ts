@@ -1,43 +1,50 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface UserState {
-    currentUser: {
-        id: string;
-        name: string;
-        role: 'teacher' | 'student' | 'admin';
-    } | null;
-    isAuthenticated: boolean;
+// =============================================================================
+// UI State Store (Zustand)
+// =============================================================================
+// Note: User authentication is handled by AuthContext in lib/auth/
+// This store ONLY manages UI-related state.
+
+interface UIState {
+    // UI States
     theme: 'light' | 'dark';
     sidebarOpen: boolean;
 
     // Actions
-    login: (user: UserState['currentUser']) => void;
-    logout: () => void;
     toggleTheme: () => void;
+    setTheme: (theme: 'light' | 'dark') => void;
     toggleSidebar: () => void;
+    setSidebarOpen: (open: boolean) => void;
 }
 
-export const useStore = create<UserState>()(
+export const useUIStore = create<UIState>()(
     persist(
         (set) => ({
-            currentUser: {
-                id: 'user-001',
-                name: '王小明',
-                role: 'student',
-            }, // Default mock user
-            isAuthenticated: true,
             theme: 'light',
             sidebarOpen: true,
 
-            login: (user) => set({ currentUser: user, isAuthenticated: true }),
-            logout: () => set({ currentUser: null, isAuthenticated: false }),
             toggleTheme: () =>
                 set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+            setTheme: (theme) => set({ theme }),
             toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+            setSidebarOpen: (open) => set({ sidebarOpen: open }),
         }),
         {
-            name: 'teamtutor-storage',
+            name: 'teamtutor-ui-storage',
         }
     )
 );
+
+// =============================================================================
+// Legacy Export (for backward compatibility)
+// =============================================================================
+// @deprecated Use useUIStore instead. User state should come from useAuth().
+
+/**
+ * @deprecated This export is maintained for backward compatibility.
+ * - For UI state (theme, sidebar): use `useUIStore()`
+ * - For user/auth state: use `useAuth()` from '@/lib/auth'
+ */
+export const useStore = useUIStore;
